@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pedro Oliveira — AI Engineer & Android Developer</title>
+  <meta name="description" content="Pedro Oliveira — Electronic Engineering student at UFAM, AI Engineer, Android Developer, IEEE co-author. Expert in Python, Kotlin, Machine Learning, LLMs." />
+  <meta name="keywords" content="Pedro Oliveira, AI Engineer, Android Developer, Machine Learning, Python, Kotlin, LLM, RAG, UFAM, IEEE" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --bg2: #111827;
+      --bg3: #1a2235;
+      --card: #141c2e;
+      --border: #1e2d45;
+      --accent: #3b82f6;
+      --accent2: #06b6d4;
+      --accent3: #8b5cf6;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --tag-bg: #1e3a5f;
+      --tag-text: #93c5fd;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,14,26,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topbar-name {
+      font-weight: 700;
+      font-size: 16px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(59,130,246,0.4); }
+
+    .btn-ghost {
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--border); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 900px;
+      margin: 60px auto 0;
+      padding: 60px 24px 40px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.3);
+      color: var(--accent);
+      border-radius: 100px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 62px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-title {
+      font-size: clamp(16px, 2.5vw, 20px);
+      color: var(--accent2);
+      font-weight: 500;
+      margin-bottom: 20px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .hero-about {
+      max-width: 660px;
+      margin: 0 auto 32px;
+      color: var(--muted);
+      font-size: 15.5px;
+      line-height: 1.75;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .hero-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .link-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .link-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .link-chip svg { width: 15px; height: 15px; }
+
+    /* ── HIGHLIGHTS STRIP ── */
+    .highlights {
+      max-width: 900px;
+      margin: 0 auto 48px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .highlight-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .highlight-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+    .hc-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .hc-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .hc-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* ── SECTION ── */
+    .section { margin-bottom: 48px; }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── EXPERIENCE CARD ── */
+    .exp-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+      position: relative;
+    }
+    .exp-card:hover { border-color: var(--accent); }
+    .exp-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: 14px 14px 0 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .exp-card:hover::before { opacity: 1; }
+
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .exp-role {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .exp-company {
+      font-size: 13px;
+      color: var(--accent2);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .exp-badge {
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
+      color: var(--accent);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .exp-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .tag {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .exp-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .exp-list li {
+      font-size: 13.5px;
+      color: var(--muted);
+      padding-left: 16px;
+      position: relative;
+      line-height: 1.6;
+    }
+    .exp-list li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 10px;
+      top: 4px;
+    }
+
+    .exp-list strong { color: var(--text); font-weight: 600; }
+
+    /* ── PUB CARD ── */
+    .pub-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .pub-card:hover { border-color: var(--accent3); }
+
+    .pub-venue {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(139,92,246,0.12);
+      color: var(--accent3);
+      border: 1px solid rgba(139,92,246,0.25);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .pub-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.5;
+      margin-bottom: 4px;
+    }
+
+    .pub-authors {
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    /* ── EVENT CARD ── */
+    .event-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .event-award {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .event-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .event-sub {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar { position: sticky; top: 70px; }
+
+    .sidebar-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    /* SKILLS */
+    .skill-row {
+      margin-bottom: 12px;
+    }
+    .skill-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .skill-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .skill-level { font-size: 11px; color: var(--muted); }
+    .skill-bar {
+      height: 4px;
+      background: var(--bg3);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .skill-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.8s ease;
+    }
+
+    /* EDUCATION */
+    .edu-item { margin-bottom: 14px; }
+    .edu-degree { font-size: 13px; font-weight: 600; color: var(--text); }
+    .edu-school { font-size: 12px; color: var(--accent2); margin-top: 2px; }
+    .edu-year { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* LANG */
+    .lang-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .lang-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .lang-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .lang-adv { background: rgba(16,185,129,0.12); color: var(--green); }
+    .lang-nat { background: rgba(59,130,246,0.12); color: var(--accent); }
+
+    /* COURSES */
+    .course-item {
+      font-size: 12.5px;
+      color: var(--muted);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .course-item:last-child { border-bottom: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .main { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .hero-stats { gap: 20px; }
+    }
+
+    /* ── HIDDEN LANG ── */
+    [data-lang="en"] { display: none; }
+    body.lang-en [data-lang="pt"] { display: none; }
+    body.lang-en [data-lang="en"] { display: initial; }
+    .exp-list[data-lang], .exp-tags[data-lang],
+    .highlights[data-lang], .exp-header[data-lang],
+    p[data-lang], span[data-lang], div[data-lang],
+    li[data-lang], ul[data-lang], h2[data-lang] {
+      /* block-level reset handled via JS class */
+    }
+
+    /* block visibility */
+    .block-en { display: none; }
+    body.lang-en .block-pt { display: none !important; }
+    body.lang-en .block-en { display: block !important; }
+
+    .flex-en { display: none; }
+    body.lang-en .flex-pt { display: none !important; }
+    body.lang-en .flex-en { display: flex !important; }
+
+    /* Pulse on badge */
+    @keyframes pulse-ring {
+      0% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
+      100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+    }
+    .btn-primary { animation: pulse-ring 2.5s infinite; }
+    .btn-primary:hover { animation: none; }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<nav class="topbar">
+  <span class="topbar-name">Pedro Oliveira</span>
+  <div class="topbar-actions">
+    <button class="btn btn-ghost" id="lang-toggle" onclick="toggleLang()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <span id="lang-label">EN</span>
+    </button>
+    <a href="Pedro_Oliveira_CV.pdf" download class="btn btn-primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="block-pt">Baixar CV</span>
+      <span class="block-en">Download CV</span>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    <span class="block-pt">Disponível para oportunidades</span>
+    <span class="block-en">Open to opportunities</span>
+  </div>
+
+  <h1>Pedro Oliveira</h1>
+
+  <p class="hero-title">
+    <span class="block-pt">AI Engineer · Android Developer · Pesquisador IEEE</span>
+    <span class="block-en">AI Engineer · Android Developer · IEEE Researcher</span>
+  </p>
+
+  <p class="hero-about">
+    <span class="block-pt">
+      Estudante de Engenharia Eletrônica na UFAM com experiência multidisciplinar em IA, desenvolvimento Android, backend e cibersegurança. Co-autor de <strong>5 artigos no IEEE ICCE 2026</strong>. Inglês avançado e forte base em C, Python e Kotlin.
+    </span>
+    <span class="block-en">
+      Electronic Engineering student at UFAM with multidisciplinary experience in AI, Android development, backend, and cybersecurity. Co-author of <strong>5 papers at IEEE ICCE 2026</strong>. Advanced English with a strong foundation in C, Python, and Kotlin.
+    </span>
+  </p>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">5+</div>
+      <div class="stat-label block-pt">Experiências</div>
+      <div class="stat-label block-en">Experiences</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5</div>
+      <div class="stat-label block-pt">Publicações IEEE</div>
+      <div class="stat-label block-en">IEEE Publications</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3</div>
+      <div class="stat-label block-pt">Premiações</div>
+      <div class="stat-label block-en">Awards</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">8+</div>
+      <div class="stat-label block-pt">Tecnologias</div>
+      <div class="stat-label block-en">Technologies</div>
+    </div>
+  </div>
+
+  <div class="hero-links">
+    <a href="https://linkedin.com/in/pedro-oliveira" class="link-chip" target="_blank">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      LinkedIn
+    </a>
+    <a href="https://github.com/stpedr" class="link-chip" target="_blank">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      GitHub
+    </a>
+    <a href="mailto:pedrolievra@gmail.com" class="link-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      pedrolievra@gmail.com
+    </a>
+    <a href="https://wa.me/55" class="link-chip" target="_blank">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</section>
+
+<!-- HIGHLIGHTS -->
+<div class="highlights">
+  <div class="highlight-card">
+    <div class="hc-icon">🤖</div>
+    <div>
+      <div class="hc-title block-pt">IA & LLMs</div>
+      <div class="hc-title block-en">AI & LLMs</div>
+      <div class="hc-desc block-pt">RAG, Guardrails, agentes multi-modelo e avaliação com BLEU/ROUGE</div>
+      <div class="hc-desc block-en">RAG, Guardrails, multi-agent systems and BLEU/ROUGE evaluation</div>
+    </div>
+  </div>
+  <div class="highlight-card">
+    <div class="hc-icon">📱</div>
+    <div>
+      <div class="hc-title">Android / Kotlin</div>
+      <div class="hc-desc block-pt">Jetpack Compose, testes instrumentados, integração com AWS e CDN</div>
+      <div class="hc-desc block-en">Jetpack Compose, instrumented testing, AWS and CDN integration</div>
+    </div>
+  </div>
+  <div class="highlight-card">
+    <div class="hc-icon">🔬</div>
+    <div>
+      <div class="hc-title block-pt">Publicações IEEE</div>
+      <div class="hc-title block-en">IEEE Publications</div>
+      <div class="hc-desc block-pt">5 artigos co-autorados no IEEE ICCE 2026 em Dubai</div>
+      <div class="hc-desc block-en">5 co-authored papers at IEEE ICCE 2026 in Dubai</div>
+    </div>
+  </div>
+  <div class="highlight-card">
+    <div class="hc-icon">🏆</div>
+    <div>
+      <div class="hc-title block-pt">Premiado</div>
+      <div class="hc-title block-en">Award Winner</div>
+      <div class="hc-desc block-pt">Menção Honrosa CONIC/UFAM 2025 · Melhor Projeto Super Tech Week 2024</div>
+      <div class="hc-desc block-en">Honorable Mention CONIC/UFAM 2025 · Best Project Super Tech Week 2024</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="content">
+
+    <!-- EXPERIENCE -->
+    <div class="section">
+      <div class="section-title">
+        <span class="block-pt">Experiência</span>
+        <span class="block-en">Experience</span>
+      </div>
+
+      <!-- 1. Eldorado -->
+      <div class="exp-card">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role block-pt">Desenvolvedor Android</div>
+            <div class="exp-role block-en">Android Developer</div>
+            <div class="exp-company">Instituto de Pesquisas Eldorado</div>
+          </div>
+          <span class="exp-badge">2024 – 2025</span>
+        </div>
+        <div class="exp-tags">
+          <span class="tag">Kotlin</span><span class="tag">JUnit</span><span class="tag">Mockito</span>
+          <span class="tag">OkHttp</span><span class="tag">AWS</span><span class="tag">CDN</span>
+          <span class="tag">OLLAMA</span><span class="tag">Google AI SDK</span><span class="tag">Jetpack Compose</span>
+        </div>
+        <ul class="exp-list block-pt">
+          <li>Integrei <strong>modelos de IA locais e via API</strong> como juízes automáticos de testes, mantendo qualidade do código sem revisão manual contínua.</li>
+          <li>Criei sistema de <strong>resolução de problemas com LLMs locais</strong> para diagnóstico de causa raiz em problemas de aplicação Android.</li>
+          <li>Desenvolvi testes instrumentados que passam por <strong>revisão humana e automatizada com IA</strong>, garantindo qualidade de serviços de IA em dispositivos reais.</li>
+          <li>Ajustei <strong>layout, navegação e estados de tela</strong> em Jetpack Compose, melhorando experiência do usuário.</li>
+          <li>Trabalhei junto a squads de <strong>DevOps, Segurança e Cloud</strong>, garantindo CDN plug-and-play e estabilidade nas releases.</li>
+        </ul>
+        <ul class="exp-list block-en">
+          <li>Integrated <strong>local and API-based AI models</strong> as automated test judges, maintaining code quality without continuous manual review.</li>
+          <li>Built a <strong>root-cause diagnosis system using local LLMs</strong> to help developers identify Android application issues faster.</li>
+          <li>Developed instrumented tests passing through <strong>human and AI-automated review</strong>, ensuring AI service quality on real devices.</li>
+          <li>Refined <strong>layout, navigation, and screen states</strong> in Jetpack Compose, improving overall user experience.</li>
+          <li>Collaborated with <strong>DevOps, Security and Cloud squads</strong>, ensuring plug-and-play CDN and stable releases.</li>
+        </ul>
+      </div>
+
+      <!-- 2. Amazônia Sustentável -->
+      <div class="exp-card">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role block-pt">Engenheiro de IA</div>
+            <div class="exp-role block-en">AI Engineer</div>
+            <div class="exp-company">Amazônia Sustentável</div>
+          </div>
+          <span class="exp-badge">2024</span>
+        </div>
+        <div class="exp-tags">
+          <span class="tag">Python</span><span class="tag">PyBaMM</span><span class="tag">XGBoost</span>
+          <span class="tag">CNN-1D</span><span class="tag">Bi-LSTM</span><span class="tag">Digital Twin</span>
+          <span class="tag">AI Benchmarking</span>
+        </div>
+        <ul class="exp-list block-pt">
+          <li>Conduzi <strong>benchmarking de XGBoost, CNN-1D e Bi-LSTM</strong> para classificação de falhas em baterias de lítio.</li>
+          <li>Gerei <strong>datasets sintéticos de erros</strong> com PyBaMM, simulando ciclos reais de carga e descarga.</li>
+          <li>Contribuí para sistema de <strong>prognóstico e diagnóstico de baterias</strong> destinadas a eletrificar comunidades remotas no Amazonas.</li>
+        </ul>
+        <ul class="exp-list block-en">
+          <li>Benchmarked <strong>XGBoost, CNN-1D, and Bi-LSTM</strong> models for lithium battery fault classification.</li>
+          <li>Generated <strong>synthetic error datasets</strong> using PyBaMM, simulating real charge/discharge cycles.</li>
+          <li>Contributed to a <strong>battery prognostics and diagnostics system</strong> for electrifying remote communities in Amazonas state.</li>
+        </ul>
+      </div>
+
+      <!-- 3. CETELI -->
+      <div class="exp-card">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role block-pt">Pesquisador — Análise de Sinais & ML</div>
+            <div class="exp-role block-en">Researcher — Signal Analysis & ML</div>
+            <div class="exp-company">CETELI / UFAM</div>
+          </div>
+          <span class="exp-badge">2023 – 2024</span>
+        </div>
+        <div class="exp-tags">
+          <span class="tag">TensorFlow</span><span class="tag">Keras</span><span class="tag">Sklearn</span>
+          <span class="tag">Librosa</span><span class="tag">NumPy</span><span class="tag">OLLAMA</span>
+          <span class="tag">LangChain</span><span class="tag">RAG</span><span class="tag">Scrum</span>
+        </div>
+        <ul class="exp-list block-pt">
+          <li>Desenvolvi <strong>avaliador de LLMs com RAG, Guardrails e agentes</strong> usando métricas de completeness, BLEU e ROUGE.</li>
+          <li>Implementei <strong>detector de frequências industriais</strong> com CNNs e SVMs para identificar sinais de manutenção em máquinas.</li>
+          <li>Realizei análise de áudio extraindo <strong>espectrogramas e FFT</strong> para treinamento de modelos de detecção.</li>
+        </ul>
+        <ul class="exp-list block-en">
+          <li>Built an <strong>LLM evaluator with RAG, Guardrails and agents</strong> using completeness, BLEU, and ROUGE metrics.</li>
+          <li>Implemented an <strong>industrial frequency detector</strong> using CNNs and SVMs to identify machine maintenance signals.</li>
+          <li>Performed audio analysis extracting <strong>spectrograms and FFT</strong> for detection model training.</li>
+        </ul>
+      </div>
+
+      <!-- 4. SUPER/UFAM -->
+      <div class="exp-card">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role block-pt">Dev Java — Sistemas Multiagentes</div>
+            <div class="exp-role block-en">Java Developer — Multi-Agent Systems</div>
+            <div class="exp-company">SUPER / UFAM</div>
+          </div>
+          <span class="exp-badge">2023</span>
+        </div>
+        <div class="exp-tags">
+          <span class="tag">Java</span><span class="tag">JADE</span><span class="tag">Android</span>
+          <span class="tag">JIRA</span><span class="tag">Agent Orchestration</span>
+        </div>
+        <ul class="exp-list block-pt">
+          <li>Desenvolvi jogo interativo em Java com <strong>framework JADE para sistemas multiagentes</strong>.</li>
+          <li>Projetei <strong>bots autônomos</strong> capazes de interagir entre si para operar o jogo de forma independente.</li>
+        </ul>
+        <ul class="exp-list block-en">
+          <li>Built an interactive Java game using the <strong>JADE framework for multi-agent systems</strong>.</li>
+          <li>Designed <strong>autonomous bots</strong> capable of interacting with each other to operate the game independently.</li>
+        </ul>
+      </div>
+
+      <!-- 5. DBC -->
+      <div class="exp-card">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role block-pt">Desenvolvedor Web & Android</div>
+            <div class="exp-role block-en">Web & Android Developer</div>
+            <div class="exp-company">DBC Company</div>
+          </div>
+          <span class="exp-badge">2022 – 2023</span>
+        </div>
+        <div class="exp-tags">
+          <span class="tag">Spring Boot</span><span class="tag">Java</span><span class="tag">Oracle</span>
+          <span class="tag">Django</span><span class="tag">Android</span><span class="tag">AOSP</span>
+          <span class="tag">Scrum</span><span class="tag">Postman</span>
+        </div>
+        <ul class="exp-list block-pt">
+          <li>Desenvolvi aplicações robustas com <strong>Spring Boot + Oracle</strong>, responsável por modelagem de dados e segurança nas transações.</li>
+          <li>Criei e mantive <strong>aplicações Android</strong> com foco em usabilidade e integração com APIs externas.</li>
+          <li>Liderei sprints e reuniões diárias com <strong>metodologia Scrum</strong> em equipes multidisciplinares.</li>
+        </ul>
+        <ul class="exp-list block-en">
+          <li>Built robust applications with <strong>Spring Boot + Oracle</strong>, responsible for data modeling and transaction security.</li>
+          <li>Created and maintained <strong>Android applications</strong> focused on usability and external API integration.</li>
+          <li>Led sprints and daily meetings using <strong>Scrum methodology</strong> in multidisciplinary teams.</li>
+        </ul>
+      </div>
+
+      <!-- 6. Honda -->
+      <div class="exp-card">
+        <div class="exp-header">
+          <div>
+            <div class="exp-role block-pt">Técnico em Mecatrônica</div>
+            <div class="exp-role block-en">Mechatronics Technician</div>
+            <div class="exp-company">Honda da Amazônia</div>
+          </div>
+          <span class="exp-badge">2019 – 2022</span>
+        </div>
+        <div class="exp-tags">
+          <span class="tag">Manutenção Industrial</span><span class="tag">Automação</span><span class="tag">Gestão de Operações</span>
+        </div>
+        <ul class="exp-list block-pt">
+          <li>Gerenciei <strong>manutenções preventivas e corretivas</strong> em equipamentos industriais, garantindo continuidade dos processos.</li>
+          <li>Desenvolvi habilidades de <strong>gestão e otimização de operações</strong> em ambiente industrial de alto volume.</li>
+        </ul>
+        <ul class="exp-list block-en">
+          <li>Managed <strong>preventive and corrective maintenance</strong> on industrial equipment, ensuring process continuity.</li>
+          <li>Developed <strong>operational management and optimization</strong> skills in a high-volume industrial environment.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PUBLICATIONS -->
+    <div class="section">
+      <div class="section-title">
+        <span class="block-pt">Publicações Científicas</span>
+        <span class="block-en">Scientific Publications</span>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue">IEEE ICCE 2026 · Dubai</div>
+        <div class="pub-title">"Adaptive Semantic Gates for Reliable Multi-Agent LLMs"</div>
+        <div class="pub-authors">L. G. M. Castro, M. D. M. Valadão, W. S. S. Júnior, C. B. Carvalho — Co-autor · DOI: 10.1109/ICCE67443.2026.11449653</div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue">IEEE ICCE 2026 · Dubai</div>
+        <div class="pub-title">"Chunking Strategies in RAG Pipelines: Evaluating the Impact on LLM Response Quality Using Consumer Electronics User Manuals"</div>
+        <div class="pub-authors">E. U. de Mattos et al. — Co-autor · DOI: 10.1109/ICCE67443.2026.11449886</div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue">IEEE ICCE 2026 · Dubai</div>
+        <div class="pub-title">"An LLM Evaluation Framework Applied to QA and Translation Tasks of User Manuals in Consumer Electronics"</div>
+        <div class="pub-authors">E. Alencar et al. — Co-autor · DOI: 10.1109/ICCE67443.2026.11449916</div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue">IEEE ICCE 2026 · Dubai</div>
+        <div class="pub-title">"Video Quality Assessment Principles Applied to Text: Spectral Metrics for LLM Evaluation"</div>
+        <div class="pub-authors">D. Amoedo et al. — Co-autor · DOI: 10.1109/ICCE67443.2026.11449748</div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue">IEEE ICCE 2026 · Dubai</div>
+        <div class="pub-title">"Video Quality Assessment Principles Applied to Text: Spectral Metrics for LLM Evaluation" (extended)</div>
+        <div class="pub-authors">D. A. Amoedo et al. — Co-autor · DOI: 10.1109/ICCE67443.2026.11449906</div>
+      </div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="section">
+      <div class="section-title">
+        <span class="block-pt">Premiações & Eventos</span>
+        <span class="block-en">Awards & Events</span>
+      </div>
+
+      <div class="event-card">
+        <div class="event-award">🥇</div>
+        <div>
+          <div class="event-title block-pt">Melhor Projeto — Super Tech Week 2024</div>
+          <div class="event-title block-en">Best Project — Super Tech Week 2024</div>
+          <div class="event-sub block-pt">Uso de cristais piezoelétricos para geração de energia elétrica sustentável</div>
+          <div class="event-sub block-en">Use of piezoelectric crystals for sustainable electricity generation</div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <div class="event-award">🏅</div>
+        <div>
+          <div class="event-title block-pt">Menção Honrosa — CONIC/UFAM 2025</div>
+          <div class="event-title block-en">Honorable Mention — CONIC/UFAM 2025</div>
+          <div class="event-sub block-pt">Sistema de Detecção de Intrusões em Redes com ML e Raspberry Pi</div>
+          <div class="event-sub block-en">Network Intrusion Detection System using ML and Raspberry Pi</div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <div class="event-award">🔬</div>
+        <div>
+          <div class="event-title block-pt">AICME 2026 — Apresentação</div>
+          <div class="event-title block-en">AICME 2026 — Presentation</div>
+          <div class="event-sub">Classification model for fault detection in lithium batteries</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- SKILLS -->
+    <div class="sidebar-card">
+      <div class="sidebar-title block-pt">Habilidades</div>
+      <div class="sidebar-title block-en">Skills</div>
+
+      <div class="skill-row">
+        <div class="skill-info"><span class="skill-name">Python</span><span class="skill-level block-pt">Avançado</span><span class="skill-level block-en">Advanced</span></div>
+        <div class="skill-bar"><div class="skill-fill" style="width:92%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-info"><span class="skill-name">Kotlin / Android</span><span class="skill-level block-pt">Avançado</span><span class="skill-level block-en">Advanced</span></div>
+        <div class="skill-bar"><div class="skill-fill" style="width:88%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-info"><span class="skill-name">Machine Learning</span><span class="skill-level block-pt">Avançado</span><span class="skill-level block-en">Advanced</span></div>
+        <div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-info"><span class="skill-name">Java / Spring Boot</span><span class="skill-level block-pt">Intermediário</span><span class="skill-level block-en">Intermediate</span></div>
+        <div class="skill-bar"><div class="skill-fill" style="width:78%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-info"><span class="skill-name">C / C++</span><span class="skill-level block-pt">Intermediário</span><span class="skill-level block-en">Intermediate</span></div>
+        <div class="skill-bar"><div class="skill-fill" style="width:75%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-info"><span class="skill-name">LLMs / RAG / Agents</span><span class="skill-level block-pt">Avançado</span><span class="skill-level block-en">Advanced</span></div>
+        <div class="skill-bar"><div class="skill-fill" style="width:83%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-info"><span class="skill-name">HTML / CSS / JS</span><span class="skill-level block-pt">Intermediário</span><span class="skill-level block-en">Intermediate</span></div>
+        <div class="skill-bar"><div class="skill-fill" style="width:70%"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-info"><span class="skill-name">Git</span><span class="skill-level block-pt">Avançado</span><span class="skill-level block-en">Advanced</span></div>
+        <div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div>
+      </div>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="sidebar-card">
+      <div class="sidebar-title block-pt">Formação</div>
+      <div class="sidebar-title block-en">Education</div>
+
+      <div class="edu-item">
+        <div class="edu-degree block-pt">Engenharia Elétrica – Eletrônica</div>
+        <div class="edu-degree block-en">Electrical Engineering – Electronics</div>
+        <div class="edu-school">UFAM</div>
+        <div class="edu-year">2022 – 2027</div>
+      </div>
+
+      <div class="edu-item">
+        <div class="edu-degree block-pt">Ensino Médio Técnico</div>
+        <div class="edu-degree block-en">Technical High School</div>
+        <div class="edu-school">Fundação Matias Machline</div>
+        <div class="edu-year">2017 – 2019</div>
+      </div>
+    </div>
+
+    <!-- LANGUAGES -->
+    <div class="sidebar-card">
+      <div class="sidebar-title block-pt">Idiomas</div>
+      <div class="sidebar-title block-en">Languages</div>
+
+      <div class="lang-item">
+        <span class="lang-name block-pt">Português</span>
+        <span class="lang-name block-en">Portuguese</span>
+        <span class="lang-badge lang-nat block-pt">Nativo</span>
+        <span class="lang-badge lang-nat block-en">Native</span>
+      </div>
+      <div class="lang-item">
+        <span class="lang-name">English</span>
+        <span class="lang-badge lang-adv block-pt">Avançado</span>
+        <span class="lang-badge lang-adv block-en">Advanced</span>
+      </div>
+    </div>
+
+    <!-- COURSES -->
+    <div class="sidebar-card">
+      <div class="sidebar-title block-pt">Cursos</div>
+      <div class="sidebar-title block-en">Courses</div>
+
+      <div class="course-item">English Class 2A — ICBEU (2026)</div>
+      <div class="course-item block-pt">Desenvolvimento Android com Kotlin — Udemy</div>
+      <div class="course-item block-en">Android Development with Kotlin — Udemy</div>
+      <div class="course-item block-pt">Fotografia Computacional — ICOMP/UFAM (330h)</div>
+      <div class="course-item block-en">Computational Photography — ICOMP/UFAM (330h)</div>
+      <div class="course-item block-pt">Análise de Dados com Python — FreeCodeCamp</div>
+      <div class="course-item block-en">Data Analysis with Python — FreeCodeCamp</div>
+      <div class="course-item">C e C++ — Udemy</div>
+    </div>
+
+  </aside>
+</div>
+
+<footer>
+  <span class="block-pt">Pedro Oliveira · Manaus, AM, Brasil · pedrolievra@gmail.com</span>
+  <span class="block-en">Pedro Oliveira · Manaus, AM, Brazil · pedrolievra@gmail.com</span>
+</footer>
+
+<script>
+  function toggleLang() {
+    const isEn = document.body.classList.toggle('lang-en');
+    document.getElementById('lang-label').textContent = isEn ? 'PT' : 'EN';
+    document.documentElement.lang = isEn ? 'en' : 'pt-BR';
+  }
+</script>
+</body>
+</html>
