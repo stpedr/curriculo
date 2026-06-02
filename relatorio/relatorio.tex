@@ -1,0 +1,1018 @@
+% =====================================================================
+%  Relatório técnico — Detecção de pedestres/ciclistas e visão
+%  computacional em sistemas de assistência à condução (ADAS)
+%  Síntese de UN R159, UN R151, ISO 16505, ISO 19206-2 e ISO 19206-4
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- Codificação e idioma ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+
+% ---------- Layout ----------
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{parskip}
+
+% ---------- Tabelas ----------
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{colortbl}
+
+% ---------- Gráficos / diagramas ----------
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric,patterns,decorations.pathreplacing,backgrounds,fit}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
+
+% ---------- Cores ----------
+\usepackage{xcolor}
+\definecolor{azulun}{RGB}{0,72,135}
+\definecolor{azulclaro}{RGB}{224,236,247}
+\definecolor{cinzaclaro}{RGB}{242,242,242}
+\definecolor{verdeok}{RGB}{0,128,64}
+\definecolor{laranja}{RGB}{222,110,0}
+\definecolor{vermelho}{RGB}{180,30,30}
+
+% ---------- Diversos ----------
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=azulun,citecolor=azulun,urlcolor=azulun}
+\captionsetup{font=small,labelfont=bf}
+
+% ---------- Cabeçalho/rodapé ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{azulun}{Detecção de VRU e Visão Computacional}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{azulun}\leaders\hrule height \headrulewidth\hfill}}
+
+% ---------- Comando de "caixa de destaque" ----------
+\newcommand{\destaque}[2]{%
+  \begin{center}
+  \begin{minipage}{0.96\linewidth}
+  \colorbox{azulclaro}{\parbox{\dimexpr\linewidth-2\fboxsep}{%
+  \textbf{\textcolor{azulun}{#1}}\\[2pt]\small #2}}
+  \end{minipage}
+  \end{center}}
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% =====================================================================
+\begin{document}
+
+% --------------------------- CAPA ------------------------------------
+\begin{titlepage}
+\centering
+\vspace*{1.2cm}
+{\color{azulun}\rule{\linewidth}{2pt}}\\[0.6cm]
+{\Huge\bfseries\textcolor{azulun}{Detecção de Pedestres e Ciclistas\\[4pt] e Visão Computacional em Veículos}\par}
+\vspace{0.5cm}
+{\Large Síntese técnica de regulamentos e normas internacionais\par}
+\vspace{0.3cm}
+{\large UN R159 (MOIS) \textbullet{} UN R151 (BSIS) \textbullet{} ISO 16505 (CMS)\\[2pt]
+ISO 19206-2 (alvos de pedestre) \textbullet{} ISO 19206-4 (alvos de ciclista)\par}
+\vspace{0.6cm}
+{\color{azulun}\rule{\linewidth}{2pt}}\\[1.2cm]
+
+% Diagrama-resumo de capa
+\begin{tikzpicture}[scale=1.0]
+  % "veículo"
+  \fill[azulun] (0,0) rectangle (1.4,2.6);
+  \node[white,rotate=90] at (0.7,1.3) {\footnotesize VEÍCULO};
+  % cone de detecção
+  \fill[laranja!18] (1.4,0.2) -- (4.6,-0.8) -- (4.6,3.4) -- (1.4,2.4) -- cycle;
+  \draw[laranja,thick,dashed] (1.4,0.2) -- (4.6,-0.8);
+  \draw[laranja,thick,dashed] (1.4,2.4) -- (4.6,3.4);
+  \node[laranja] at (3.1,1.3) {\footnotesize zona de detecção};
+  % pedestre
+  \filldraw[verdeok] (3.6,2.1) circle (0.12);
+  \draw[verdeok,line width=1.3pt] (3.6,2.0)--(3.6,1.55);
+  \draw[verdeok,line width=1.3pt] (3.6,1.85)--(3.45,1.65); \draw[verdeok,line width=1.3pt] (3.6,1.85)--(3.75,1.65);
+  \draw[verdeok,line width=1.3pt] (3.6,1.55)--(3.48,1.30); \draw[verdeok,line width=1.3pt] (3.6,1.55)--(3.72,1.30);
+  % ciclista (símbolo)
+  \draw[vermelho,line width=1.2pt] (3.4,0.45) circle (0.18);
+  \draw[vermelho,line width=1.2pt] (4.0,0.45) circle (0.18);
+  \draw[vermelho,line width=1.2pt] (3.4,0.45)--(3.7,0.85)--(4.0,0.45);
+  \filldraw[vermelho] (3.7,1.05) circle (0.08);
+  \draw[vermelho,line width=1.2pt] (3.7,0.85)--(3.7,1.0);
+\end{tikzpicture}
+
+\vfill
+{\large\bfseries Contexto: sistemas de segurança ativa baseados em sensores e câmeras\par}
+\vspace{0.3cm}
+{\normalsize Relatório de síntese e análise comparativa\par}
+\vspace{0.5cm}
+{\small \today\par}
+\end{titlepage}
+
+% --------------------------- SUMÁRIO ---------------------------------
+\tableofcontents
+\thispagestyle{empty}
+\clearpage
+
+% =====================================================================
+\section{Introdução e contexto}
+% =====================================================================
+
+A redução de acidentes envolvendo \textbf{usuários vulneráveis da via}
+(\emph{Vulnerable Road Users} -- VRU), notadamente pedestres e ciclistas,
+tornou-se uma prioridade da regulamentação veicular internacional. Veículos
+pesados (categorias \texttt{M2}, \texttt{M3}, \texttt{N2} e \texttt{N3})
+apresentam amplas regiões de visão obstruída -- os chamados \emph{pontos
+cegos} -- nas quais o condutor não consegue perceber a presença de um
+pedestre ou ciclista próximo. Colisões em manobras de partida (\emph{moving
+off}) e de conversão (\emph{turning}) a baixas velocidades têm consequências
+graves para esses usuários.
+
+A resposta tecnológica a esse problema são os \textbf{Sistemas Avançados de
+Assistência à Condução} (ADAS), que empregam \textbf{visão computacional} e
+fusão de sensores (câmeras, radar, LIDAR, ultrassom, infravermelho) para
+detectar VRUs e alertar o condutor. Este relatório sintetiza cinco documentos
+normativos que, em conjunto, definem \emph{o que} esses sistemas devem
+detectar, \emph{como} devem ser ensaiados e \emph{com quais alvos
+substitutos} (\emph{surrogate targets}) a detecção é validada.
+
+\destaque{Como os cinco documentos se relacionam}{Os dois \textbf{regulamentos
+UN (R159 e R151)} estabelecem os \emph{requisitos de desempenho} e os
+\emph{procedimentos de ensaio} de homologação dos sistemas de detecção. Esses
+ensaios exigem \emph{alvos físicos} que imitem pedestres e ciclistas perante
+os sensores -- alvos especificados pelas normas \textbf{ISO 19206-2}
+(pedestres) e \textbf{ISO 19206-4} (ciclistas). A norma \textbf{ISO 16505}
+trata de uma tecnologia de visão complementar/substituta dos espelhos: os
+\emph{Camera Monitor Systems} (CMS). Juntos, formam a cadeia
+\emph{requisito $\rightarrow$ ensaio $\rightarrow$ alvo de validação}.}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+   doc/.style={rectangle,rounded corners,draw=azulun,fill=azulclaro,
+               text width=3.0cm,align=center,minimum height=1.5cm,font=\small},
+   iso/.style={rectangle,rounded corners,draw=verdeok,fill=verdeok!12,
+               text width=3.0cm,align=center,minimum height=1.5cm,font=\small},
+   cms/.style={rectangle,rounded corners,draw=laranja,fill=laranja!12,
+               text width=3.0cm,align=center,minimum height=1.5cm,font=\small},
+   seta/.style={-{Stealth[length=3mm]},thick,azulun}]
+
+ \node[doc] (r159) {\textbf{UN R159}\\ MOIS\\ \scriptsize partida em linha reta};
+ \node[doc,right=1.6cm of r159] (r151) {\textbf{UN R151}\\ BSIS\\ \scriptsize conversão à direita};
+ \node[iso,below=1.5cm of r159] (iso2) {\textbf{ISO 19206-2}\\ alvo de pedestre};
+ \node[iso,below=1.5cm of r151] (iso4) {\textbf{ISO 19206-4}\\ alvo de ciclista};
+ \node[cms,right=1.6cm of r151] (cms) {\textbf{ISO 16505}\\ Camera Monitor System};
+
+ \draw[seta] (r159) -- node[left,font=\scriptsize]{exige alvo} (iso2);
+ \draw[seta] (r151) -- node[left,font=\scriptsize]{exige alvo} (iso4);
+ \draw[seta] (r159) -- (iso4);
+ \draw[seta] (r151) -- (iso2);
+ \draw[{Stealth[length=3mm]}-{Stealth[length=3mm]},thick,laranja]
+       (r151) -- node[above,font=\scriptsize]{visão complementar} (cms);
+\end{tikzpicture}
+\caption{Relação entre os cinco documentos: os regulamentos UN definem
+requisitos e ensaios; as normas ISO 19206 fornecem os alvos físicos de
+validação; a ISO 16505 padroniza a visão indireta por câmera-monitor.}
+\label{fig:relacao}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Visão geral dos cinco documentos analisados.}
+\label{tab:overview}
+\small
+\begin{tabularx}{\linewidth}{@{}p{2.5cm}p{2.4cm}X@{}}
+\toprule
+\textbf{Documento} & \textbf{Tipo / Ano} & \textbf{Objeto} \\
+\midrule
+\textbf{UN R159} & Regulamento UN\newline 2021 &
+Sistema de Informação de Partida (MOIS) -- detecção de pedestres e ciclistas
+no ponto cego frontal próximo durante partida/baixa velocidade em linha reta. \\
+\addlinespace
+\textbf{UN R151} & Regulamento UN\newline 2020 &
+Sistema de Informação de Ponto Cego (BSIS) -- detecção de ciclistas no lado
+do passageiro durante manobras de conversão. \\
+\addlinespace
+\textbf{ISO 16505} & Norma ISO\newline 2019 (2ª ed.) &
+Aspectos ergonômicos e de desempenho de Sistemas Câmera-Monitor (CMS) que
+substituem espelhos retrovisores obrigatórios. \\
+\addlinespace
+\textbf{ISO 19206-2} & Norma ISO\newline 2018 &
+Requisitos para \emph{alvos de pedestre} (adulto e criança) usados na
+avaliação de funções de segurança ativa. \\
+\addlinespace
+\textbf{ISO 19206-4} & Norma ISO\newline 2020 &
+Requisitos para \emph{alvos de ciclista} (adulto e criança) usados na
+avaliação de funções de segurança ativa. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+% =====================================================================
+\section{UN Regulation No 159 --- Moving Off Information System (MOIS)}
+% =====================================================================
+
+\subsection{Objetivo e escopo}
+
+O \textbf{UN R159} (em vigor desde 10 de junho de 2021) regula a homologação do
+\textbf{Moving Off Information System (MOIS)} -- um sistema embarcado que
+\emph{detecta} e \emph{informa} o condutor sobre a presença de pedestres e
+ciclistas no ponto cego frontal próximo do veículo e, opcionalmente,
+\emph{adverte} sobre colisão iminente. Aplica-se a veículos pesados das
+categorias \texttt{M2}, \texttt{M3}, \texttt{N2} e \texttt{N3}.
+
+O foco são as manobras de \textbf{partida do repouso} (\emph{moving off}) e de
+\textbf{deslocamento em linha reta a baixa velocidade} ($\leq 10$~km/h),
+situações em que dados de análise de colisões mostram que a informação precoce
+ao condutor é eficaz. O regulamento reconhece explicitamente que o sistema não
+pode cobrir todas as condições do mundo real e que falsos alarmes excessivos
+não devem levar o condutor a desligar o sistema.
+
+\subsection{Arquitetura de sinais (HMI)}
+
+O MOIS é construído sobre três tipos de sinais ópticos/multimodais, resumidos
+na Tabela~\ref{tab:sinais159}.
+
+\begin{table}[H]
+\centering
+\caption{Os três sinais do MOIS (UN R159).}
+\label{tab:sinais159}
+\small
+\begin{tabularx}{\linewidth}{@{}p{3.3cm}p{2.6cm}X@{}}
+\toprule
+\textbf{Sinal} & \textbf{Modalidade} & \textbf{Função / requisito} \\
+\midrule
+\textbf{Sinal de informação}\newline(\emph{Information signal}) & Óptico &
+Indica VRU em proximidade ao para-choque dianteiro. Deve ser visível de dia e
+à noite, perceptível do assento do condutor. \\
+\addlinespace
+\textbf{Sinal de aviso de colisão}\newline(\emph{Collision warning}) &
+$\geq 2$ modos\newline(óptico+acústico\newline +háptico) &
+Emitido quando a colisão é iminente. Combinação de pelo menos dois modos;
+se óptico, deve diferir do sinal de informação na estratégia de ativação. \\
+\addlinespace
+\textbf{Sinal de falha}\newline(\emph{Failure warning}) & Óptico &
+Indica desativação automática (falha ou contaminação dos sensores).
+Distinguível do sinal de informação; permanece ativo enquanto o MOIS
+estiver indisponível. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Zona de detecção e planos de referência}
+
+O coração do regulamento é a definição geométrica da zona em que o VRU deve ser
+detectado, delimitada por quatro planos (Figura~\ref{fig:zona159}):
+
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt]
+  \item \textbf{Plano de separação dianteiro máximo} ($d_{FSP}$): $3{,}7$~m ou
+        o ponto mais avançado da fronteira do ponto cego (à escolha do
+        fabricante), nunca inferior a $1{,}0$~m.
+  \item \textbf{Plano de separação dianteiro mínimo}: $0{,}8$~m à frente do veículo.
+  \item \textbf{Planos de separação \emph{nearside}/\emph{offside}}: $0{,}5$~m
+        para fora de cada lateral do veículo.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=1.15,>=Stealth]
+  % zona de detecção sombreada (desenhada primeiro, ao fundo)
+  \fill[laranja!12] (3.8,0) rectangle (6.7,2.4);
+
+  % veículo (vista superior)
+  \fill[azulun] (0,0) rectangle (3.0,2.4);
+  \node[white,align=center,font=\footnotesize] at (1.5,1.2) {VEÍCULO\\(vista superior)};
+  \node[font=\scriptsize,azulun] at (3.4,2.55) {frente};
+
+  % largura do veículo (cota interna, abaixo do veículo)
+  \draw[<->,thick] (0,-0.95) -- node[below,font=\scriptsize]{largura $d_w$} (3.0,-0.95);
+
+  % planos de separação laterais (0,5 m) -- linhas tracejadas
+  \draw[verdeok,thick,dashed] (0,-0.4) -- (6.9,-0.4);
+  \draw[verdeok,thick,dashed] (0,2.8) -- (6.9,2.8);
+  \node[verdeok,font=\scriptsize,anchor=west] at (7.0,-0.4) {plano \emph{nearside}};
+  \node[verdeok,font=\scriptsize,anchor=west] at (7.0,2.8) {plano \emph{offside}};
+  \node[verdeok,font=\scriptsize,anchor=west] at (7.0,-0.75) {(+0,5 m)};
+  \node[verdeok,font=\scriptsize,anchor=west] at (7.0,3.15) {(+0,5 m)};
+
+  % plano mínimo (0,8) e máximo (3,7) -- verticais
+  \draw[laranja,thick] (3.8,-0.5) -- (3.8,3.0);
+  \node[laranja,font=\scriptsize,rotate=90,anchor=south] at (3.65,1.2) {mín. 0,8 m};
+  \draw[vermelho,thick] (6.7,-0.5) -- (6.7,3.0);
+  \node[vermelho,font=\scriptsize,rotate=90,anchor=south] at (6.85,1.2) {máx. $d_{FSP}=3{,}7$ m};
+
+  % cota dianteira (acima)
+  \draw[<->,thick] (3.0,3.5) -- node[above,font=\scriptsize]{$d_{FSP}$} (6.7,3.5);
+
+  % pedestre cruzando (dentro da zona)
+  \filldraw[verdeok] (5.2,2.35) circle (0.1);
+  \draw[verdeok,line width=1.2pt] (5.2,2.25)--(5.2,1.85);
+  \draw[verdeok,line width=1.2pt] (5.2,2.1)--(5.05,1.9);\draw[verdeok,line width=1.2pt] (5.2,2.1)--(5.35,1.9);
+  \draw[->,verdeok,thick] (5.2,1.55) -- (5.2,0.25) node[midway,right,font=\scriptsize]{3--5 km/h};
+\end{tikzpicture}
+\caption{Zona de detecção do MOIS (vista superior). O VRU deve ser detectado
+dentro do retângulo delimitado pelos planos de separação dianteiros
+(mín.\ 0,8 m; máx.\ $d_{FSP}$) e laterais ($\pm$0,5 m).}
+\label{fig:zona159}
+\end{figure}
+
+\subsection{Requisitos de desempenho (resumo)}
+
+\begin{table}[H]
+\centering
+\caption{Principais limiares de desempenho do MOIS.}
+\label{tab:perf159}
+\small
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Parâmetro} & \textbf{Requisito} \\
+\midrule
+Condição de luz mínima & $>15$~lux (com ou sem faróis de cruzamento) \\
+Manobra de partida -- VRU & pedestres/ciclistas a 3--5 km/h cruzando
+perpendicularmente \\
+Manobra a baixa velocidade -- ciclista & 0--10 km/h, paralelo ao veículo \\
+Velocidade da manobra & $<10$~km/h (linha reta) \\
+Desativação automática & por falha ou contaminação (gelo/neve/lama) \\
+Reativação automática & em até 60 s após remoção da contaminação \\
+Calibração & aviso se não calibrado após 15 s acumulados acima de 0 km/h \\
+Compatibilidade EM & conforme UN R10, série 05 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Procedimento de ensaio}
+
+Os ensaios são realizados em piso seco de asfalto ou concreto, temperatura
+ambiente entre $0\,^{\circ}$C e $45\,^{\circ}$C, com iluminação natural
+homogênea $>1000$~lux. Três famílias de ensaio são definidas:
+
+\begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
+  \item \textbf{Ensaios de cruzamento estático} (\emph{Static Crossing}) --
+        veículo parado, alvo cruza perpendicularmente (Tabela~\ref{tab:tc159a}).
+  \item \textbf{Parada longitudinal com ciclista em partida}
+        (\emph{Longitudinal Stopping}) -- veículo aproxima-se de ciclista parado.
+  \item \textbf{Partida longitudinal com ciclista} (\emph{Longitudinal Moving
+        Off}) -- veículo e ciclista aceleram em paralelo (Tabela~\ref{tab:tc159b}).
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{Casos de ensaio para cruzamento estático (UN R159, Apêndice 1,
+Tabela 1). $d_{TC}$ = distância do caso; $v$ = velocidade do alvo.}
+\label{tab:tc159a}
+\small
+\begin{tabular}{clccc}
+\toprule
+\textbf{Caso} & \textbf{Alvo (T)} & \textbf{$d_{TC}$ (m)} &
+\textbf{Direção} & \textbf{$v$ (km/h)} \\
+\midrule
+1 & Pedestre criança & 0,8 & \emph{Nearside} & 3 \\
+2 & Pedestre adulto & $d_{FSP}$ & \emph{Nearside} & 3 \\
+3 & Ciclista adulto & 0,8 & \emph{Offside} & 3 \\
+4 & Ciclista adulto & $d_{FSP}$ & \emph{Nearside} & 5 \\
+5 & Pedestre adulto & 0,8 & \emph{Offside} & 5 \\
+6 & Pedestre criança & $d_{FSP}$ & \emph{Offside} & 5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Casos de ensaio para ensaios longitudinais com ciclista (UN R159,
+Apêndice 1, Tabela 2). $p_x$ = distância longitudinal; $p_y$ = distância
+lateral ao plano mediano.}
+\label{tab:tc159b}
+\small
+\begin{tabular}{clccc}
+\toprule
+\textbf{Caso} & \textbf{Alvo (T)} & \textbf{$p_x$ (m)} & \textbf{$p_y$ (m)} &
+\textbf{$d_{LPI}$ (m)} \\
+\midrule
+1 & Ciclista adulto & $0{,}8+d_{clear}$ & $+d_{50\%}$ & $d_{FSP}-0{,}8-d_{clear}$ \\
+2 & Ciclista adulto & $0{,}8+d_{clear}$ & $0{,}0$ & $d_{FSP}-0{,}8-d_{clear}$ \\
+3 & Ciclista adulto & $0{,}8+d_{clear}$ & $-d_{50\%}$ & $d_{FSP}-0{,}8-d_{clear}$ \\
+4 & Ciclista adulto & $d_{FSP}-0{,}1$ & $+d_{50\%}$ & $0{,}1$ \\
+5 & Ciclista adulto & $d_{FSP}-0{,}1$ & $0{,}0$ & $0{,}1$ \\
+6 & Ciclista adulto & $d_{FSP}-0{,}1$ & $-d_{50\%}$ & $0{,}1$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\destaque{Determinação da fronteira do ponto cego (Anexo 3)}{Usa-se um cilindro
+de teste de $50\pm2$~mm de diâmetro com um anel contrastante a $900\pm2$~mm de
+altura. Uma câmera posicionada no \emph{ponto de referência ocular} do condutor
+registra a visibilidade do anel em posições a cada $\leq150$~mm. A área onde o
+anel \emph{não} é totalmente visível define o ponto cego -- métodos por CAD ou
+LASER são aceitos como equivalentes.}
+
+\clearpage
+% =====================================================================
+\section{UN Regulation No 151 --- Blind Spot Information System (BSIS)}
+% =====================================================================
+
+\subsection{Objetivo e escopo}
+
+O \textbf{UN R151} regula o \textbf{Blind Spot Information System (BSIS)},
+voltado especificamente a \textbf{colisões em conversão}: caminhões que viram à
+direita (em tráfego de mão direita) e atropelam ciclistas que seguem reto pela
+direita. Aplica-se obrigatoriamente a \texttt{N2} ($>8$~t) e \texttt{N3};
+\texttt{N2} ($\leq 8$~t), \texttt{M2} e \texttt{M3} podem ser homologados a
+pedido do fabricante.
+
+Diferentemente do R159 (que trata de partida em linha reta), o R151 endereça a
+\textbf{manobra de conversão}. Um aspecto notável é que o \emph{procedimento de
+ensaio não requer a conversão real}: como a informação deve ser dada
+suficientemente cedo (a 15~m antes do ponto de colisão esperado), o ensaio é
+feito com o veículo seguindo reto e a bicicleta o ultrapassando.
+
+\subsection{Geometria da manobra e definições-chave}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=1.0,>=Stealth]
+  % corredor do caminhão (vertical, subindo)
+  \fill[azulun] (0,0) rectangle (1.6,3.0);
+  \node[white,rotate=90] at (0.8,1.5) {\small CAMINHÃO};
+  \node[font=\scriptsize,azulun,anchor=east] at (-0.15,2.9) {frente (canto};
+  \node[font=\scriptsize,azulun,anchor=east] at (-0.15,2.55) {dianteiro dir.)};
+  \draw[azulun,thin] (-0.15,2.7) -- (0.0,3.0);
+
+  % trajetória da bicicleta (lado direito, near side)
+  \draw[verdeok,very thick,->] (2.6,-0.6) -- (2.6,4.7);
+  \node[verdeok,font=\scriptsize,anchor=west] at (2.75,4.55) {trajetória da bicicleta};
+  % bicicleta
+  \draw[verdeok,line width=1pt] (2.45,0.4) circle (0.13);
+  \draw[verdeok,line width=1pt] (2.75,0.4) circle (0.13);
+  \draw[verdeok,line width=1pt] (2.45,0.4)--(2.6,0.7)--(2.75,0.4);
+  \filldraw[verdeok] (2.6,0.85) circle (0.06);
+  \node[verdeok,font=\scriptsize,anchor=west] at (2.95,0.4) {5--20 km/h};
+
+  % separação lateral
+  \draw[<->,laranja,thick] (1.6,1.7) -- (2.6,1.7);
+  \node[laranja,font=\scriptsize,anchor=south] at (2.1,1.75) {sep. lateral};
+  \node[laranja,font=\scriptsize,anchor=north] at (2.1,1.68) {0,9--4,25 m};
+
+  % seta de conversão (curva à direita)
+  \draw[vermelho,very thick,->] (0.8,3.0) .. controls (0.8,3.9) and (1.7,4.1) .. (2.55,4.1);
+  \node[vermelho,font=\scriptsize,anchor=east] at (1.0,4.25) {conversão};
+
+  % LPI e ponto de colisão
+  \draw[dashed] (-0.3,3.0) -- (4.0,3.0);
+  \node[font=\scriptsize,vermelho,anchor=west] at (2.95,3.2) {ponto de colisão};
+  \node[font=\scriptsize,vermelho,anchor=west] at (2.95,2.85) {(impacto 0--6 m)};
+  % região de info 15 m
+  \draw[<->,thick] (6.0,-0.6) -- (6.0,3.0);
+  \node[font=\scriptsize,anchor=west,align=left] at (6.1,1.2) {LPI = 15 m\\ antes da\\ colisão};
+\end{tikzpicture}
+\caption{Geometria do ensaio BSIS (UN R151). O caminhão segue reto; a bicicleta
+o ultrapassa pela \emph{near side}. O sinal deve ser dado no \emph{Last Point of
+Information} (15 m antes do ponto de colisão esperado caso houvesse conversão).}
+\label{fig:zona151}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Definições geométricas-chave do BSIS (UN R151).}
+\label{tab:def151}
+\small
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\toprule
+\textbf{Termo} & \textbf{Definição} \\
+\midrule
+\emph{Last Point of Information} (LPI) & Ponto em que o sinal deve ter sido dado,
+precedendo a conversão esperada. \\
+\emph{First Point of Information} & Ponto mais avançado em que o sinal \emph{pode}
+ser dado -- LPI mais distância correspondente a 4 s de deslocamento. \\
+Separação lateral & Distância entre veículo e bicicleta (paralelos), de 0,9 a
+4,25 m, descontando 250 mm (meia largura da bicicleta). \\
+Posição de impacto & Local do impacto da bicicleta na lateral, 0 a 6 m a partir
+do canto dianteiro direito. \\
+Localização do sinal & $>30^{\circ}$ (preferível $\approx 40^{\circ}$) à direita
+do eixo longitudinal através do ponto ocular. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Requisitos de desempenho}
+
+\begin{table}[H]
+\centering
+\caption{Limiares de desempenho do BSIS (UN R151).}
+\label{tab:perf151}
+\small
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Parâmetro} & \textbf{Requisito} \\
+\midrule
+Faixa de velocidade do veículo & 0 a 30 km/h (para frente) \\
+Velocidade da bicicleta & 5 a 20 km/h \\
+Separação lateral detectável & 0,9 a 4,25 m (e 0,25--0,9 m em retilíneo) \\
+Posição de impacto & 0 a 6 m do canto dianteiro direito \\
+Janela longitudinal & sem exigência se $>30$~m atrás ou $>7$~m à frente \\
+Luz mínima & $>15$~lux \\
+Tempo de reação assumido & 1,4 s; desaceleração 5 m/s$^2$ \\
+Compatibilidade EM & conforme UN R10, série 04 \\
+Desativação manual & \textbf{não permitida} para o sinal de informação \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Procedimento de ensaio e casos}
+
+O ensaio dinâmico forma um corredor com a bicicleta-manequim segundo a Figura~1
+do Apêndice 1. Uma placa de trânsito (sinal C14, limite 50 km/h, conforme a
+Convenção de Viena) é posicionada na entrada do corredor para verificar que o
+sistema \emph{não} gera falso alarme com objetos estáticos. A
+Tabela~\ref{tab:tc151} resume os sete casos de ensaio.
+
+\begin{table}[H]
+\centering
+\caption{Casos de ensaio do BSIS (UN R151, Apêndice 1, Tabela 1). Valores de
+$d_a$, $d_b$, $d_c$, $d_d$ em metros.}
+\label{tab:tc151}
+\small
+\begin{tabular}{cccccccccc}
+\toprule
+\textbf{Caso} & \textbf{$v_{bic}$} & \textbf{$v_{veh}$} & \textbf{$d_{lat}$} &
+\textbf{$d_a$} & \textbf{$d_b$} & \textbf{$d_c$} & \textbf{$d_d$} &
+\textbf{Impacto} & \textbf{Raio} \\
+& (km/h) & (km/h) & (m) & (m) & (m) & (m) & (m) & (m) & (m) \\
+\midrule
+1 & 20 & 10 & --   & --   & 15,8 & 15   & 26,1 & 6 & 5 \\
+2 & 20 & 10 & 1,25 & 44,4 & 22   & 15   & 38,4 & 0 & 10 \\
+3 & 20 & 20 & --   & --   & 38,3 & 38,3 & --   & 6 & 25 \\
+4 & 10 & 20 & --   & 22,2 & 43,5 & 15   & 37,2 & 0 & 25 \\
+5 & 10 & 10 & --   & --   & 19,8 & 19,8 & --   & 0 & 5 \\
+6 & 20 & 10 & 4,25 & 44,4 & 14,7 & 15   & 28   & 6 & 10 \\
+7 & 20 & 10 & --   & --   & 17,7 & 15   & 34   & 3 & 10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Dois \textbf{ensaios estáticos} complementam o dinâmico:
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt]
+  \item \textbf{Tipo 1}: bicicleta cruza perpendicularmente, impacto 1,15 m à
+        frente; aprovado se o sinal ativa no máximo a 2 m de distância.
+  \item \textbf{Tipo 2}: bicicleta paralela a 2,75 m, 20 km/h; aprovado se o
+        sinal ativa no máximo a 7,77 m do ponto mais avançado do veículo.
+\end{itemize}
+
+\destaque{Anexo 3 -- requisitos para casos fora da tabela}{O R151 fornece
+fórmulas para calcular os valores de sincronização $d_a = 8\,\mathrm{s}\cdot
+v_{bic}$ e $d_b = 8\,\mathrm{s}\cdot v_{veh} - L - d_{b,3}$ (corrigindo pela
+posição de impacto $L$ e pelo raio de conversão $R$), permitindo ao serviço
+técnico ensaiar combinações arbitrárias de parâmetros. O $d_c$ (LPI) é o maior
+entre 15 m e a distância de frenagem.}
+
+\clearpage
+% =====================================================================
+\section{ISO 16505:2019 --- Camera Monitor Systems (CMS)}
+% =====================================================================
+
+\subsection{Objetivo e escopo}
+
+A \textbf{ISO 16505:2019} (2ª edição) define requisitos mínimos de
+\textbf{segurança, ergonomia e desempenho} e os métodos de ensaio para
+\textbf{Sistemas Câmera-Monitor (CMS)} que \emph{substituem} os espelhos
+retrovisores obrigatórios interno e externos (classes I a IV da UN Regulamento
+nº 46). Trata o CMS como um \emph{sistema funcional} -- da captura óptica à
+exibição ao condutor -- e estabelece que, por substituir espelhos obrigatórios,
+o CMS é \textbf{relevante para a segurança}, devendo observar normas como a
+ISO 26262 (segurança funcional).
+
+Os requisitos partem do princípio de que o CMS deve fornecer um
+\emph{mapeamento ideal} da cena real e, simultaneamente, equiparar-se ao
+desempenho dos espelhos convencionais que substitui. Sistemas ADAS (p.ex.\
+auxílio de estacionamento) \emph{não} fazem parte do escopo.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  blk/.style={rectangle,rounded corners,draw=laranja,fill=laranja!10,
+              minimum height=1.3cm,text width=2.2cm,align=center,font=\small},
+  seta/.style={-{Stealth[length=3mm]},very thick,laranja}]
+  \node[blk] (cena) {Cena real\\(campo de visão)};
+  \node[blk,right=1.1cm of cena] (cam) {Câmera\\(sensor)};
+  \node[blk,right=1.1cm of cam] (proc) {Processamento\\de imagem};
+  \node[blk,right=1.1cm of proc] (mon) {Monitor\\(display)};
+  \node[blk,right=1.1cm of mon] (cond) {Condutor\\(ORP)};
+  \draw[seta] (cena)--(cam);
+  \draw[seta] (cam)--(proc);
+  \draw[seta] (proc)--(mon);
+  \draw[seta] (mon)--(cond);
+  % requisitos sob cada bloco
+  \node[font=\scriptsize,align=center,below=2pt of cam] {resolução,\\artefatos};
+  \node[font=\scriptsize,align=center,below=2pt of proc] {latência,\\frame rate};
+  \node[font=\scriptsize,align=center,below=2pt of mon] {luminância,\\isotropia, cor};
+  \node[font=\scriptsize,align=center,below=2pt of cond] {ampliação,\\acuidade visual};
+\end{tikzpicture}
+\caption{Cadeia funcional de um Camera Monitor System (CMS) segundo a
+ISO 16505. Cada elo possui requisitos e métodos de ensaio próprios.}
+\label{fig:cms}
+\end{figure}
+
+\subsection{Principais grupos de requisitos e ensaios}
+
+A norma organiza requisitos (Cláusula 6) e métodos de ensaio (Cláusula 7) em
+paralelo. Os principais grupos estão resumidos na Tabela~\ref{tab:cms}.
+
+\begin{table}[H]
+\centering
+\caption{Grupos de requisitos da ISO 16505 (Cláusulas 6 e 7).}
+\label{tab:cms}
+\small
+\begin{tabularx}{\linewidth}{@{}p{3.6cm}X@{}}
+\toprule
+\textbf{Grupo} & \textbf{Conteúdo} \\
+\midrule
+Uso pretendido & Vista padrão, vista padrão ajustada, vista temporariamente
+modificada, ajuste de luminância/contraste, \emph{overlays}. \\
+Prontidão operacional & Disponibilidade do sistema após ligar o veículo. \\
+Campo de visão & Reprodução do campo legalmente prescrito de cada classe de espelho. \\
+Ampliação e resolução & Fator de ampliação médio e mínimo; resolução (MTF). \\
+Integração do monitor & Posição e ângulo do monitor dentro do veículo. \\
+Qualidade de imagem & Isotropia, luminância/contraste, cor, artefatos, nitidez
+e profundidade de campo, distorção geométrica. \\
+Comportamento temporal & Taxa de quadros, tempo de formação de imagem,
+latência do sistema. \\
+Comportamento em falha & Resposta do sistema a falhas. \\
+Ergonomia e ambiente & Necessidades de pessoas idosas; influência de clima e
+ambiente. \\
+Segurança funcional & Considerações da Cláusula 8 (referência à ISO 26262). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Parâmetros quantitativos por classe de espelho (UN R46)}
+
+A ISO 16505 baseia seus requisitos nas propriedades de espelhos reais
+homologados. A Tabela~\ref{tab:espelhos} apresenta os valores de referência
+(levantamento de veículos MY 2013) para distância máxima ao ORP, ângulos de
+visão e fator de ampliação médio, por classe de espelho.
+
+\begin{table}[H]
+\centering
+\caption{Valores de referência por classe de espelho UN R46 usados pela
+ISO 16505. $a_{max}$ = distância máx.\ ao ORP; $\beta$ = ângulo de visão;
+$M_{avg}$ = fator de ampliação médio. (D = lado do condutor; P = passageiro.)}
+\label{tab:espelhos}
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Classe} & \textbf{$a_{max}$ D (m)} & \textbf{$a_{max}$ P (m)} &
+\textbf{$\beta_{D}$ (\textdegree)} & \textbf{$M_{avg}$ D} & \textbf{$M_{avg}$ P} \\
+\midrule
+I (interno)        & 1,05 & --   & 20--65  & 0,33  & --   \\
+II (principal)     & 1,7  & 2,6  & 55--75  & 0,23  & 0,15 \\
+III (externo)      & 1,2  & 1,9  & 30--65  & 0,31  & 0,20 \\
+IV (grande angular)& 1,7  & 2,6  & 55--125 & 0,065 & 0,036 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\destaque{Por que esses valores importam para a visão computacional}{O
+\emph{fator de ampliação} ($M<1$ em espelhos convexos: objetos parecem menores)
+e a \emph{resolução (MTF)} determinam o menor objeto -- e, portanto, o menor
+pedestre/ciclista -- que o condutor consegue distinguir no monitor. A norma
+ancora esses limites na \emph{acuidade visual humana}, garantindo que a câmera
+não degrade a percepção em relação ao espelho substituído. Isso conecta a
+ISO 16505 diretamente ao problema de detecção de VRU dos regulamentos UN.}
+
+\clearpage
+% =====================================================================
+\section{ISO 19206 --- Alvos de teste (\emph{surrogate targets})}
+% =====================================================================
+
+A série \textbf{ISO 19206} especifica os \emph{dispositivos de teste} (alvos
+substitutos) que representam usuários da via para avaliar funções de segurança
+ativa. Esses alvos são exatamente os exigidos pelos ensaios dos regulamentos UN:
+o R159 e o R151 referenciam a ISO 19206-2 (pedestre) e a ISO 19206-4 (ciclista).
+Um bom alvo deve cumprir um duplo objetivo:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt]
+  \item \textbf{Realismo sensorial}: ser reconhecido como humano/ciclista real
+        pelos sensores (câmera, radar, LIDAR, infravermelho);
+  \item \textbf{Segurança no impacto}: causar apenas dano cosmético ao veículo
+        em colisões de até 60 km/h, sendo reparável com ferramentas manuais.
+\end{itemize}
+
+% ---------------------------------------------------------------------
+\subsection{ISO 19206-2:2018 --- Alvos de pedestre}
+% ---------------------------------------------------------------------
+
+Define alvos de \textbf{pedestre} representando um \emph{adulto} (homem
+50\textsuperscript{o} percentil, modo andando) e uma \emph{criança} (6--7 anos,
+modo correndo). Os alvos podem ser estáticos (não articulados) ou articulados
+(pernas, e opcionalmente braços, com fases de marcha realistas).
+
+\begin{table}[H]
+\centering
+\caption{Dimensões dos alvos de pedestre (ISO 19206-2, Anexo A, Tabela A.1).}
+\label{tab:ped}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Segmento} & \multicolumn{2}{c}{\textbf{Adulto (andando)}} &
+\multicolumn{2}{c}{\textbf{Criança (correndo)}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+ & \textbf{Valor} & \textbf{Tol.} & \textbf{Valor} & \textbf{Tol.} \\
+\midrule
+Altura total (c/ calçado) & 1800 & $\pm$20 & 1154 & $\pm$20 \\
+Altura do ponto-H & 923 & $\pm$20 & 607 & $\pm$20 \\
+Altura do ombro & 1500 & $\pm$20 & 920 & $\pm$20 \\
+Largura do ombro & 500 & $\pm$20 & 298 & $\pm$20 \\
+Altura da cabeça & 260 & $\pm$10 & 250 & $\pm$10 \\
+Largura da cabeça & 170 & $\pm$10 & 150 & $\pm$10 \\
+Profundidade do tronco & 235 & $\pm$10 & 139 & $\pm$10 \\
+Ângulo do tronco (\textdegree) & 85 & $\pm$2 & 78 & $\pm$2 \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize Dimensões em mm, salvo indicação. Ponto-H usado
+como referência de posição.}
+\end{tabular}
+\end{table}
+
+A norma detalha requisitos por tecnologia de sensor (Tabela~\ref{tab:sensores}),
+que se aplicam tanto a pedestres quanto a ciclistas.
+
+\begin{table}[H]
+\centering
+\caption{Requisitos por tecnologia de sensor (ISO 19206-2 e -4).}
+\label{tab:sensores}
+\small
+\begin{tabularx}{\linewidth}{@{}p{2.7cm}p{2.6cm}X@{}}
+\toprule
+\textbf{Tecnologia} & \textbf{Faixa} & \textbf{Requisito-chave do alvo} \\
+\midrule
+Óptico (CCD/CMOS, estéreo) & Visível & Pele não reflexiva cor de pele; camiseta
+preta + jeans azul; roupa folgada sem rugas dominantes. \\
+NIR (infraverm.\ próximo) & 850--910 nm & Refletividade IR de roupas e pele
+40--60\%; cabelo 20--60\%; variação $<20\%$ entre 45\textdegree{} e 90\textdegree. \\
+Radar & 24 GHz; 76--81 GHz & RCS comparável ao humano real; efeito
+\emph{micro-Doppler} das pernas/pedaladas dentro de limites. \\
+FIR (térmico) & 8--14 \textmu m & (Opcional) características térmicas
+comparáveis a humano real. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{Requisitos funcionais do carregador (\emph{target carrier})} do
+pedestre: velocidade $\geq 10$~km/h (precisão $\pm0{,}18$~km/h); acelerações de
+$-2{,}5$ a $+2{,}0$~m/s$^2$; ângulo de guinada $\pm2^{\circ}$; deriva lateral
+$\pm0{,}05$~m; \emph{pitch} $\pm2^{\circ}$; oscilação vertical $\leq15$~mm.
+
+% ---------------------------------------------------------------------
+\subsection{ISO 19206-4:2020 --- Alvos de ciclista}
+% ---------------------------------------------------------------------
+
+Define alvos de \textbf{ciclista} (BT -- \emph{Bicyclist Target}), separados em
+\emph{BT bicicleta} e \emph{BT condutor (rider)}, também em versões adulto
+(50\textsuperscript{o} percentil) e criança (6--7 anos, 120 cm). O alvo deve ser
+uma representação 3D completa, com \textbf{rodas girando} (sincronizadas à
+velocidade) para produzir os efeitos visual e de micro-Doppler. O ângulo de
+tronco padrão é 10\textdegree{} e 30\textdegree{} (faixa opcional 0--50\textdegree).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=1.5,>=Stealth]
+  % chao
+  \draw[gray!60] (-0.3,0) -- (2.6,0);
+  % rodas (adulto: eixos x=-540 e x=670 mm, z=340 -> escala)
+  \def\r{0.34}
+  \draw[azulun,thick] (0,\r) circle (\r);   % roda traseira
+  \draw[azulun,thick] (1.21,\r) circle (\r); % roda dianteira
+  % quadro (duplo triangulo)
+  \coordinate (bb) at (0.54,0.28);   % bottom bracket (0,280) deslocado p/ x rel
+  \coordinate (rt) at (0.395,0.86);  % rear top (-145..) approx
+  \coordinate (ft) at (0.97,0.855);  % front top frame
+  \coordinate (sd) at (0.305,0.935); % saddle
+  \coordinate (hb) at (0.85,1.18);   % handlebar
+  \draw[azulun,thick] (0,\r)--(bb)--(0.54,0.34); % chain stay
+  \draw[azulun,thick] (bb)--(rt)--(sd);
+  \draw[azulun,thick] (0,\r)--(sd);
+  \draw[azulun,thick] (bb)--(ft)--(hb);
+  \draw[azulun,thick] (1.21,\r)--(hb);
+  \draw[azulun,thick] (rt)--(ft);
+  % rider (corpo)
+  \filldraw[verdeok] (0.55,1.45) circle (0.12); % cabeca
+  \draw[verdeok,line width=1.4pt] (0.55,1.33)--(0.45,0.95); % tronco inclinado
+  \draw[verdeok,line width=1.4pt] (0.45,0.95)--(0.85,1.15); % braco ao guidao
+  \draw[verdeok,line width=1.4pt] (0.45,0.95)--(0.55,0.55)--(0.6,0.28); % perna
+  % bottom bracket (origem) com leader
+  \filldraw[vermelho] (bb) circle (0.035);
+  \draw[vermelho,thin] (bb) -- (1.05,-0.45);
+  \node[font=\scriptsize,vermelho,anchor=west] at (1.05,-0.45)
+        {\emph{bottom bracket} (origem)};
+  % cota altura (direita)
+  \draw[<->] (2.5,0) -- (2.5,1.5) node[midway,right,font=\scriptsize]{1865 mm};
+  % cota comprimento (abaixo)
+  \draw[<->] (-0.2,-0.9) -- (1.55,-0.9) node[midway,below,font=\scriptsize]{1890 mm};
+\end{tikzpicture}
+\caption{Representação esquemática do alvo de ciclista adulto (ISO 19206-4).
+A origem das coordenadas é o centro do eixo dos pedais (\emph{bottom bracket}).}
+\label{fig:bike}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Dimensões totais dos alvos de ciclista (ISO 19206-4, Anexo A).
+Origem no \emph{bottom bracket}.}
+\label{tab:bike}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Segmento (X, Z)} & \multicolumn{2}{c}{\textbf{Adulto}} &
+\multicolumn{2}{c}{\textbf{Criança}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+ & \textbf{X} & \textbf{Z} & \textbf{X} & \textbf{Z} \\
+\midrule
+Eixo roda dianteira & 670 & 340 & 406 & 206 \\
+Eixo roda traseira & $-540$ & 340 & $-327$ & 206 \\
+Guidão (\emph{handlebar}) & 310 & 1180 & 188 & 715 \\
+Selim (\emph{saddle}) & $-235$ & 935 & $-142$ & 567 \\
+\midrule
+\textbf{Altura total} & \multicolumn{2}{c}{1865} & \multicolumn{2}{c}{1130} \\
+\textbf{Comprimento total} & \multicolumn{2}{c}{1890} & \multicolumn{2}{c}{1145} \\
+\textbf{Ângulo de tronco (\textdegree)} & \multicolumn{2}{c}{10 e 30} &
+\multicolumn{2}{c}{10 (opc.\ 30)} \\
+\bottomrule
+\multicolumn{5}{l}{\footnotesize Dimensões em mm. Diâmetros recomendados:
+quadro 25--35 mm; tirantes 15--25 mm (para RCS realista).}
+\end{tabular}
+\end{table}
+
+\textbf{Requisitos do carregador} do ciclista (mais exigentes que o de
+pedestre): velocidade $\geq 25$~km/h; acelerações de $-5$ a $+3$~m/s$^2$;
+ângulo de direção (\emph{heading}) $\pm2^{\circ}$; deriva lateral
+$\pm0{,}05$~m; tolerância de rolagem $\pm5^{\circ}$; oscilação vertical
+$\leq15$~mm. O alvo é também representativo de bicicletas elétricas (\emph{pedelec}).
+
+\clearpage
+% =====================================================================
+\section{Análise comparativa e síntese integrada}
+% =====================================================================
+
+\subsection{R159 (MOIS) vs.\ R151 (BSIS)}
+
+Embora ambos os regulamentos combatam acidentes com VRU em veículos pesados a
+baixa velocidade, eles cobrem \emph{manobras distintas e complementares}. A
+Tabela~\ref{tab:comp} contrasta seus pontos centrais.
+
+\begin{table}[H]
+\centering
+\caption{Comparação entre UN R159 (MOIS) e UN R151 (BSIS).}
+\label{tab:comp}
+\small
+\begin{tabularx}{\linewidth}{@{}p{3.2cm}XX@{}}
+\toprule
+\textbf{Aspecto} & \textbf{UN R159 (MOIS)} & \textbf{UN R151 (BSIS)} \\
+\midrule
+Manobra & Partida/baixa velocidade em \emph{linha reta} & \emph{Conversão}
+à direita (near side) \\
+VRU alvo & Pedestres \emph{e} ciclistas & Ciclistas \\
+Zona & Ponto cego \emph{frontal} próximo & Ponto cego \emph{lateral} direito \\
+Velocidade do veículo & $<10$~km/h & 0--30 km/h \\
+Categorias & M2, M3, N2, N3 & N2 ($>8$~t), N3 (outras opcionais) \\
+Sinal de info & Óptico & Óptico ($>30^{\circ}$ à direita) \\
+Desativação manual da info & Possível (sequência) & \textbf{Não permitida} \\
+Ensaio de conversão real & N/A & \textbf{Não} exige conversão real \\
+Alvos & ISO 19206-2 e -4 & ISO 19206-4 \\
+Ano de vigência & 2021 & 2020 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Pontos em comum (filosofia regulatória)}
+
+Os dois regulamentos compartilham uma arquitetura comum, refletindo uma mesma
+filosofia de projeto de HMI:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt]
+  \item \textbf{Hierarquia de sinais}: informação (baixa urgência, precoce) +
+        aviso de colisão (alta urgência) + aviso de falha.
+  \item \textbf{Evitar fadiga de alarme}: sinais de baixa urgência cedo, para
+        \emph{ajudar} e não \emph{irritar} o condutor, minimizando falsos
+        positivos com objetos estáticos (cones, placas, carros estacionados).
+  \item \textbf{Desativação automática segura} por falha/contaminação, com
+        reativação em até 60 s e sinal de falha dedicado.
+  \item \textbf{Robustez ambiental}: luz $>15$~lux, compatibilidade
+        eletromagnética (UN R10), temperatura 0--45\,\textdegree C.
+  \item \textbf{Validação com alvos ISO 19206}, garantindo repetibilidade.
+\end{itemize}
+
+\subsection{O elo com a visão computacional}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  cam/.style={rectangle,rounded corners,draw=azulun,fill=azulclaro,
+              text width=2.6cm,align=center,font=\small,minimum height=1.1cm},
+  proc/.style={rectangle,rounded corners,draw=laranja,fill=laranja!10,
+              text width=2.6cm,align=center,font=\small,minimum height=1.1cm},
+  out/.style={rectangle,rounded corners,draw=verdeok,fill=verdeok!10,
+              text width=2.6cm,align=center,font=\small,minimum height=1.1cm},
+  seta/.style={-{Stealth[length=3mm]},very thick,gray}]
+  \node[cam] (s) {\textbf{Sensores}\\ câmera, radar,\\ LIDAR, FIR};
+  \node[proc,right=1.2cm of s] (p) {\textbf{Percepção}\\ detecção e\\ classificação de VRU};
+  \node[out,right=1.2cm of p] (d) {\textbf{Decisão/HMI}\\ info / aviso /\\ falha};
+  \draw[seta] (s)--(p);
+  \draw[seta] (p)--(d);
+  \node[font=\scriptsize,below=1pt of s,align=center] {ISO 19206 calibra\\ a \emph{assinatura} do VRU};
+  \node[font=\scriptsize,below=1pt of p,align=center] {visão computacional\\ (o "como" detectar)};
+  \node[font=\scriptsize,below=1pt of d,align=center] {UN R159/R151\\ definem o "quando/o quê"};
+\end{tikzpicture}
+\caption{Pipeline de detecção de VRU e o papel de cada documento. A visão
+computacional vive na etapa de percepção; os regulamentos especificam a saída
+exigida; as normas ISO 19206/16505 padronizam a entrada (alvos e qualidade de imagem).}
+\label{fig:pipeline}
+\end{figure}
+
+Do ponto de vista de \textbf{visão computacional}, os documentos definem o
+\emph{contrato} que um sistema de percepção deve cumprir:
+
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt]
+  \item \textbf{Especificação da entrada}: a ISO 19206 padroniza a aparência do
+        VRU em cada modalidade (refletividade óptica/NIR, RCS de radar,
+        micro-Doppler, assinatura térmica FIR). Isso permite \emph{treinar e
+        validar} algoritmos de detecção contra um alvo reprodutível.
+  \item \textbf{Especificação da saída}: os regulamentos UN definem zonas
+        geométricas, velocidades e o \emph{Last Point of Information}, ou seja,
+        \emph{onde} e \emph{quando} a detecção precisa resultar em alerta.
+  \item \textbf{Métricas de qualidade de imagem}: a ISO 16505 fornece o
+        vocabulário e os ensaios (MTF/resolução, latência, isotropia,
+        distorção) que limitam o desempenho de qualquer percepção baseada em
+        câmera.
+  \item \textbf{Gestão de falsos positivos}: ambos os regulamentos exigem
+        minimizar falsos alarmes com objetos estáticos -- um requisito central
+        de qualquer classificador de VRU robusto.
+\end{itemize}
+
+% =====================================================================
+\section{Conclusão}
+% =====================================================================
+
+Os cinco documentos analisados formam um \textbf{ecossistema normativo coerente}
+para a detecção de pedestres e ciclistas por sistemas embarcados de visão e
+sensoriamento:
+
+\begin{enumerate}[leftmargin=1.5em,itemsep=3pt]
+  \item \textbf{UN R159 (MOIS)} e \textbf{UN R151 (BSIS)} são os pilares
+        regulatórios -- definem requisitos de desempenho e procedimentos de
+        homologação para detecção frontal (partida) e lateral (conversão),
+        respectivamente.
+  \item \textbf{ISO 19206-2} e \textbf{ISO 19206-4} fornecem os \emph{alvos de
+        validação} físicos (pedestre e ciclista), assegurando que os ensaios
+        dos regulamentos sejam reprodutíveis e multissensoriais.
+  \item \textbf{ISO 16505} padroniza a tecnologia de \emph{visão indireta} por
+        câmera-monitor, conectando o desempenho óptico do hardware à percepção
+        humana e à segurança funcional.
+\end{enumerate}
+
+Juntos, traduzem o objetivo de segurança -- \emph{salvar usuários vulneráveis
+da via} -- em especificações verificáveis de engenharia, percorrendo toda a
+cadeia da \emph{cena real} ao \emph{alerta ao condutor}. Para o engenheiro de
+visão computacional, eles constituem simultaneamente o \emph{requisito de
+projeto} (o que detectar e quando alertar) e o \emph{protocolo de teste} (com
+quais alvos e sob quais condições validar).
+
+\vspace{0.5cm}
+\destaque{Síntese em uma frase}{\emph{Os regulamentos UN dizem o que detectar e
+quando alertar; as normas ISO 19206 dizem com o que validar; a ISO 16505 diz
+como garantir a qualidade da imagem -- e a visão computacional é a tecnologia
+que costura tudo isso em um sistema funcional de segurança ativa.}}
+
+% =====================================================================
+\section*{Referências documentais}
+\addcontentsline{toc}{section}{Referências documentais}
+% =====================================================================
+\small
+\begin{enumerate}[leftmargin=1.5em,itemsep=2pt]
+  \item \textbf{UN Regulation No 159} -- \emph{Uniform provisions concerning the
+        approval of motor vehicles with regard to the Moving Off Information
+        System for the Detection of Pedestrians and Cyclists}
+        (ECE/TRANS/WP.29/2020/122), 2021.
+  \item \textbf{UN Regulation No 151} -- \emph{Uniform provisions concerning the
+        approval of motor vehicles with regard to the Blind Spot Information
+        System for the Detection of Bicycles}, 2020.
+  \item \textbf{ISO 16505:2019} -- \emph{Road vehicles --- Ergonomic and
+        performance aspects of Camera Monitor Systems --- Requirements and test
+        procedures} (2ª edição).
+  \item \textbf{ISO 19206-2:2018} -- \emph{Road vehicles --- Test devices for
+        target vehicles, vulnerable road users and other objects, for assessment
+        of active safety functions --- Part 2: Requirements for pedestrian targets}.
+  \item \textbf{ISO 19206-4:2020} -- \emph{Road vehicles --- Test devices [\ldots]
+        --- Part 4: Requirements for bicyclist targets}.
+\end{enumerate}
+
+\end{document}
