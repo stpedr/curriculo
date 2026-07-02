@@ -1,0 +1,406 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm,headheight=14pt}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!50!black,
+    urlcolor=blue!50!black,
+    citecolor=blue!50!black,
+    pdftitle={Revisão de Jetpack Compose},
+    pdfauthor={Pedro Oliveira}
+}
+
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codekeyword}{RGB}{127,0,85}
+\definecolor{codestring}{RGB}{0,128,0}
+\definecolor{codecomment}{RGB}{128,128,128}
+\definecolor{codeannotation}{RGB}{102,51,153}
+
+\lstdefinelanguage{Kotlin}{
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    string=[b]",
+    morestring=[b]',
+    morekeywords={
+        package, import, class, object, interface, fun, val, var, by,
+        if, else, when, for, while, do, return, private, public,
+        internal, override, companion, data, sealed, enum, in, is,
+        null, true, false, this, super, it, modifier
+    },
+}
+
+\lstdefinestyle{kotlinstyle}{
+    language=Kotlin,
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{codekeyword}\bfseries,
+    commentstyle=\color{codecomment}\itshape,
+    stringstyle=\color{codestring},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=8pt,
+    frame=single,
+    rulecolor=\color{gray!40},
+    breaklines=true,
+    breakatwhitespace=false,
+    showstringspaces=false,
+    tabsize=4,
+    columns=flexible,
+    captionpos=b,
+    literate=
+        {ã}{{\~a}}1 {õ}{{\~o}}1 {ç}{{\c c}}1 {á}{{\'a}}1 {é}{{\'e}}1
+        {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {â}{{\^a}}1 {ê}{{\^e}}1
+        {ô}{{\^o}}1
+}
+
+\lstset{style=kotlinstyle}
+\emergencystretch=3em
+\sloppy
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Revisão de Jetpack Compose}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{\textbf{Revisão de Jetpack Compose} \\ \large Aplicação de exemplo: \texttt{ComposeReview}}
+\author{Pedro Oliveira}
+\date{\today}
+
+\begin{document}
+\shorthandoff{"}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Introdução}
+
+Este documento acompanha o projeto Android \texttt{jetpack-compose-review/},
+uma aplicação mínima construída com Jetpack Compose para revisar, na
+prática, seis conceitos fundamentais do framework:
+
+\begin{itemize}
+    \item \texttt{@Composable}
+    \item Composição e recomposição
+    \item \texttt{state}
+    \item \texttt{remember}
+    \item \texttt{mutableStateOf}
+    \item UI declarativa
+\end{itemize}
+
+A aplicação tem duas telas simples em uma única tela rolável: um
+\textbf{contador} e uma \textbf{lista de tarefas}. Cada uma foi escolhida
+por exercitar um subconjunto diferente dos conceitos acima, mantendo o
+código pequeno o suficiente para ler de uma vez só.
+
+\section{Estrutura do projeto}
+
+O projeto segue a estrutura padrão de um módulo Android/Gradle:
+
+\begin{verbatim}
+jetpack-compose-review/
+|-- build.gradle.kts                  # configuracao raiz (plugins)
+|-- settings.gradle.kts               # declara o modulo :app
+|-- app/
+|   |-- build.gradle.kts              # dependencias do Compose/Material3
+|   `-- src/main/
+|       |-- AndroidManifest.xml
+|       |-- java/com/pedro/composereview/
+|       |   |-- MainActivity.kt       # Activity + todos os Composables
+|       |   `-- ui/theme/
+|       |       |-- Color.kt
+|       |       |-- Theme.kt
+|       |       `-- Type.kt
+|       `-- res/values/
+|           |-- strings.xml
+|           `-- themes.xml
+`-- docs/
+    `-- revisao-jetpack-compose.tex   # este documento
+\end{verbatim}
+
+Diferente de um projeto Android tradicional baseado em \texttt{View}s e
+XML de layout, aqui \emph{toda} a interface é descrita em Kotlin dentro de
+\texttt{MainActivity.kt}, usando funções anotadas com \texttt{@Composable}.
+Os arquivos em \texttt{ui/theme/} apenas definem cores, tipografia e o
+\texttt{MaterialTheme} usado pela aplicação — não contêm lógica de tela.
+
+\section{Os seis conceitos, um a um}
+
+\subsection{\texttt{@Composable}}
+
+\texttt{@Composable} é a anotação que transforma uma função Kotlin comum
+em uma \textbf{unidade de UI} que o compilador do Compose sabe como
+rastrear, (re)executar e otimizar. Uma função marcada com
+\texttt{@Composable} pode chamar outras funções \texttt{@Composable}, ler
+estado (\texttt{State<T>}) e emitir elementos de UI — mas não pode ser
+chamada de código Kotlin comum fora desse contexto.
+
+No projeto, todas as telas são funções \texttt{@Composable}:
+\texttt{ReviewApp}, \texttt{SectionTitle}, \texttt{CounterCard},
+\texttt{TodoCard}, \texttt{TaskList} e \texttt{TaskRow}. Exemplo:
+
+\begin{lstlisting}[caption={Uma função @Composable simples e reutilizável}, label=lst:composable]
+@Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text = text,
+        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.titleMedium
+    )
+}
+\end{lstlisting}
+
+Note que \texttt{SectionTitle} não devolve uma \texttt{View}: ela apenas
+\emph{descreve} que, naquele ponto da árvore, deve existir um
+\texttt{Text} com determinado estilo. Quem decide \emph{quando} e
+\emph{como} desenhar isso é o runtime do Compose — esse é o cerne da UI
+declarativa (Seção~\ref{sec:declarativa}).
+
+\subsection{Composição e recomposição}
+
+\textbf{Composição} é o processo de executar as funções
+\texttt{@Composable} e montar a árvore de UI resultante (quais elementos
+existem, com quais parâmetros, aninhados de que forma). Isso acontece na
+primeira renderização da tela.
+
+\textbf{Recomposição} é o processo de executar \emph{de novo} apenas as
+funções \texttt{@Composable} cujas leituras de estado mudaram, para
+atualizar a árvore — sem recriar a \texttt{Activity} nem reconstruir a
+UI do zero. O Compose rastreia, para cada composable, quais objetos de
+\texttt{State} ele leu durante a composição; quando um desses valores
+muda, apenas os composables que o leram (e, quando necessário, seus
+descendentes) são recompostos.
+
+Para tornar esse processo visível, \texttt{CounterCard} mantém um
+contador de recomposições (\texttt{recompositions}) que \emph{não} é um
+\texttt{State} — é uma variável comum guardada com \texttt{remember}. Ela
+é incrementada toda vez que a função roda de novo, mas sua leitura não
+"assina" a composição atual (diferente de um \texttt{mutableStateOf}),
+então ela não causa recomposições adicionais por conta própria — apenas
+reflete quantas vezes o \texttt{count} mudou até agora:
+
+\begin{lstlisting}[caption={Tornando a recomposição visível na tela}, label=lst:recomposicao]
+@Composable
+fun CounterCard() {
+    var count by remember { mutableStateOf(0) }
+    val recompositions = remember { intArrayOf(0) }
+    recompositions[0] += 1
+
+    Card(/* ... */) {
+        Column(/* ... */) {
+            Text("Valor: $count")
+            Text("Esta secao recompos ${recompositions[0]} vez(es)")
+            Row {
+                Button(onClick = { count++ }) { Text("+1") }
+                Button(onClick = { count-- }) { Text("-1") }
+                TextButton(onClick = { count = 0 }) { Text("Resetar") }
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+A cada toque em "+1", "-1" ou "Resetar": (1) \texttt{count} muda; (2) o
+Compose marca \texttt{CounterCard} como inválido, pois foi ele quem leu
+\texttt{count} durante a composição; (3) \texttt{CounterCard} é executado
+de novo (recomposição); (4) \texttt{recompositions[0]} é incrementado e o
+novo valor aparece na tela — evidenciando que a recomposição de fato
+ocorreu.
+
+\subsection{\texttt{state}}
+\label{sec:state}
+
+Em Compose, \textbf{state} (estado) é qualquer valor que, ao mudar,
+deveria fazer a UI se atualizar. Ele é representado pela interface
+\texttt{State<T>} (e sua variante mutável, \texttt{MutableState<T>}). O
+Compose observa leituras de \texttt{State} feitas dentro de um escopo de
+composição e usa isso para saber o que recompor quando o valor muda.
+
+O projeto usa estado em dois lugares com naturezas diferentes:
+
+\begin{itemize}
+    \item \textbf{Estado local e primitivo}: \texttt{count} (um
+    \texttt{Int}) em \texttt{CounterCard} e \texttt{input} (uma
+    \texttt{String}) em \texttt{TodoCard}.
+    \item \textbf{Estado de coleção}: \texttt{tasks}, uma
+    \texttt{SnapshotStateList<String>} criada com
+    \texttt{mutableStateListOf(...)}, que notifica a composição quando
+    itens são adicionados ou removidos (\texttt{tasks.add(...)},
+    \texttt{tasks.remove(...)}), sem precisar reatribuir a variável
+    inteira.
+\end{itemize}
+
+Também é demonstrado o padrão de \textbf{state hoisting}: em vez de cada
+composable filho guardar seu próprio estado, \texttt{TodoCard} concentra
+o estado (\texttt{input} e \texttt{tasks}) e o repassa como parâmetros e
+callbacks para \texttt{TaskList} e \texttt{TaskRow}, que ficam
+\emph{stateless} — apenas recebem dados e informam eventos para cima:
+
+\begin{lstlisting}[caption={State hoisting: pai com estado, filhos sem estado}, label=lst:hoisting]
+@Composable
+fun TaskList(tasks: List<String>, onRemove: (String) -> Unit) {
+    Column {
+        tasks.forEach { task ->
+            TaskRow(task = task, onRemove = { onRemove(task) })
+        }
+    }
+}
+
+@Composable
+fun TaskRow(task: String, onRemove: () -> Unit) {
+    Row {
+        Text(text = task, modifier = Modifier.weight(1f))
+        TextButton(onClick = onRemove) { Text("Remover") }
+    }
+}
+\end{lstlisting}
+
+Essa separação torna \texttt{TaskList} e \texttt{TaskRow} fáceis de
+reutilizar, testar e pré-visualizar isoladamente, porque não dependem de
+\emph{onde} o estado mora — apenas do que recebem por parâmetro.
+
+\subsection{\texttt{remember}}
+
+Funções \texttt{@Composable} podem ser executadas várias vezes
+(recompostas). Sem alguma forma de persistir valores entre essas
+execuções, qualquer variável local seria recriada do zero a cada
+recomposição — um contador sempre voltaria a zero, por exemplo.
+
+\texttt{remember} resolve isso: ele guarda um valor na memória interna da
+composição (a \emph{slot table}) e o devolve nas recomposições
+seguintes, em vez de recalculá-lo. O valor só é recriado se o composable
+sair completamente da árvore (por exemplo, some da tela) e entrar de
+novo, ou se as chaves passadas a variações como \texttt{remember(key)}
+mudarem.
+
+No projeto, \texttt{remember} aparece em toda inicialização de estado:
+
+\begin{lstlisting}[caption={remember preservando estado entre recomposições}, label=lst:remember]
+var count by remember { mutableStateOf(0) }
+val recompositions = remember { intArrayOf(0) }
+var input by remember { mutableStateOf("") }
+val tasks = remember { mutableStateListOf("Revisar @Composable", "Estudar remember") }
+\end{lstlisting}
+
+Em todos os casos, a lambda passada para \texttt{remember} só é executada
+\textbf{uma vez} (na primeira composição); nas recomposições seguintes,
+\texttt{remember} simplesmente devolve o valor já existente.
+
+\subsection{\texttt{mutableStateOf}}
+
+\texttt{mutableStateOf(valorInicial)} cria um objeto
+\texttt{MutableState<T>} observável: sempre que sua propriedade
+\texttt{.value} é reatribuída, o Compose sabe que precisa invalidar (e
+depois recompor) qualquer composable que tenha lido esse valor durante a
+composição.
+
+Combinado com o delegate de propriedade \texttt{by} (do pacote
+\texttt{androidx.compose.runtime}, via \texttt{getValue}/\texttt{setValue}),
+é possível tratar o estado quase como uma variável comum:
+
+\begin{lstlisting}[caption={mutableStateOf com o delegate `by`}, label=lst:mutablestateof]
+var count by remember { mutableStateOf(0) }
+// equivalente, sem o delegate `by`:
+// val countState = remember { mutableStateOf(0) }
+// countState.value++
+
+count++          // le e escreve em countState.value internamente
+\end{lstlisting}
+
+O mesmo padrão é usado para \texttt{input} em \texttt{TodoCard}
+(\texttt{var input by remember \{ mutableStateOf("") \}}), atualizado a
+cada tecla digitada via \texttt{onValueChange = \{ input = it \}} do
+\texttt{OutlinedTextField}. Para a lista de tarefas, o equivalente para
+coleções é usado: \texttt{mutableStateListOf(...)}, que devolve uma lista
+cujas operações de mutação (\texttt{add}, \texttt{remove}) já disparam
+recomposição sozinhas.
+
+\subsection{UI declarativa}
+\label{sec:declarativa}
+
+Em UI \textbf{imperativa} (o modelo clássico de \texttt{View}s no
+Android), o desenvolvedor descreve \emph{passo a passo como transformar}
+a UI de um estado para outro: cria uma \texttt{View}, chama
+\texttt{findViewById}, depois \texttt{setText(...)},
+\texttt{setVisibility(...)}, etc., sempre que algo muda.
+
+Em UI \textbf{declarativa} (o modelo do Compose), o desenvolvedor
+descreve apenas \emph{como a UI deve ser para um dado estado atual} — uma
+função pura, em essência: \texttt{UI = f(state)}. Quando o estado muda, a
+função é executada de novo (recomposição) e o Compose calcula sozinho a
+diferença necessária na árvore de UI, sem que o código precise dizer
+"esconda este botão" ou "atualize aquele texto" manualmente.
+
+Isso fica evidente em \texttt{CounterCard}: o texto \texttt{"Valor:
+\$count"} não é atualizado com um comando imperativo do tipo
+\texttt{textView.setText(...)}. Em vez disso, a função inteira é
+reexecutada com o novo valor de \texttt{count}, e a nova string
+\texttt{"Valor: \$count"} é simplesmente o resultado dessa execução:
+
+\begin{lstlisting}[caption={UI = f(state): o texto e apenas funcao do estado atual}, label=lst:declarativa]
+Text("Valor: $count", style = MaterialTheme.typography.headlineSmall)
+\end{lstlisting}
+
+Não existe, em nenhum lugar do código, uma chamada explícita para
+"atualizar o texto" — o Compose garante isso automaticamente porque
+\texttt{Text} leu \texttt{count} durante a composição.
+
+\section{Fluxo de dados: do toque na tela até a recomposição}
+
+O diagrama abaixo resume o ciclo que ocorre a cada toque no botão
+\texttt{"+1"} do contador:
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=1.1cm and 1.6cm,
+    box/.style={draw, rounded corners, minimum width=3.6cm, minimum height=1cm, align=center, font=\small},
+    arr/.style={-{Latex[length=2mm]}, thick}
+]
+\node[box] (tap) {Usuário toca em "+1"};
+\node[box, below=of tap] (event) {\texttt{onClick} dispara\\\texttt{count++}};
+\node[box, below=of event] (state) {\texttt{mutableStateOf}\\atualiza \texttt{.value}};
+\node[box, below=of state] (invalidate) {Compose invalida\\\texttt{CounterCard}};
+\node[box, below=of invalidate] (recompose) {\texttt{CounterCard} é\\recomposto};
+\node[box, below=of recompose] (ui) {Nova UI: novo\\\texttt{count} e\\\texttt{recompositions[0]}};
+
+\draw[arr] (tap) -- (event);
+\draw[arr] (event) -- (state);
+\draw[arr] (state) -- (invalidate);
+\draw[arr] (invalidate) -- (recompose);
+\draw[arr] (recompose) -- (ui);
+\end{tikzpicture}
+\end{center}
+
+O mesmo ciclo se repete para a lista de tarefas, com a diferença de que
+o estado (\texttt{tasks}) mora em \texttt{TodoCard} e é apenas
+\emph{lido} por \texttt{TaskList}/\texttt{TaskRow} — por isso, ao
+adicionar ou remover uma tarefa, é \texttt{TodoCard} (e os composables
+que efetivamente leem \texttt{tasks}) que recompõe, não a árvore inteira
+do aplicativo.
+
+\section{Conclusão}
+
+A aplicação \texttt{ComposeReview} concentra, em menos de 200 linhas de
+Kotlin, os seis conceitos revisados: funções \texttt{@Composable}
+formam a árvore de UI; \texttt{state} (via \texttt{mutableStateOf} e
+\texttt{mutableStateListOf}) guarda os dados que podem mudar;
+\texttt{remember} preserva esse estado entre execuções; e a
+composição/recomposição é o mecanismo que mantém a tela sincronizada com
+o estado, seguindo o modelo declarativo \texttt{UI = f(state)} — sem
+nenhuma chamada imperativa de atualização de tela.
+
+\end{document}
