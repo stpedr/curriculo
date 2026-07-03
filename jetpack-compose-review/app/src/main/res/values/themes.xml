@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.ComposeReview" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- AppCompatActivity (usada só pela demo de lifecycle) exige um tema
+         derivado de Theme.AppCompat, não de android:Theme.Material. -->
+    <style name="Theme.ComposeReview.Lifecycle" parent="Theme.AppCompat.Light.NoActionBar" />
+</resources>
