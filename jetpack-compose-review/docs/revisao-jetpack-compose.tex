@@ -19,7 +19,7 @@
     linkcolor=blue!50!black,
     urlcolor=blue!50!black,
     citecolor=blue!50!black,
-    pdftitle={Revisão de Jetpack Compose},
+    pdftitle={Revisão de Android: Compose, ContentProvider, SharedPreferences, Lifecycle, Coroutines, MVVM, StateFlow/LiveData},
     pdfauthor={Pedro Oliveira}
 }
 
@@ -72,11 +72,11 @@
 
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{Revisão de Jetpack Compose}
+\fancyhead[L]{Revisão de Android — ComposeReview}
 \fancyhead[R]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
-\title{\textbf{Revisão de Jetpack Compose} \\ \large Aplicação de exemplo: \texttt{ComposeReview}}
+\title{\textbf{Revisão de Android} \\ \large Compose, ContentProvider, SharedPreferences, Lifecycle, \\ Coroutines, MVVM e StateFlow/LiveData \\[4pt] \normalsize Aplicação de exemplo: \texttt{ComposeReview}}
 \author{Pedro Oliveira}
 \date{\today}
 
@@ -90,22 +90,35 @@
 \section{Introdução}
 
 Este documento acompanha o projeto Android \texttt{jetpack-compose-review/},
-uma aplicação mínima construída com Jetpack Compose para revisar, na
-prática, seis conceitos fundamentais do framework:
+uma aplicação de exemplo que revisa, na prática, sete tópicos que costumam
+cair em entrevista/prova de Android:
 
 \begin{itemize}
-    \item \texttt{@Composable}
-    \item Composição e recomposição
-    \item \texttt{state}
-    \item \texttt{remember}
-    \item \texttt{mutableStateOf}
-    \item UI declarativa
+    \item Jetpack Compose: \texttt{@Composable}, composição e
+    recomposição, \texttt{state}, \texttt{remember},
+    \texttt{mutableStateOf} e UI declarativa;
+    \item Content Provider e compartilhamento de dados;
+    \item SharedPreferences e suas limitações;
+    \item Activity/Fragment lifecycle;
+    \item Coroutines;
+    \item MVVM;
+    \item StateFlow / LiveData.
 \end{itemize}
 
-A aplicação tem duas telas simples em uma única tela rolável: um
-\textbf{contador} e uma \textbf{lista de tarefas}. Cada uma foi escolhida
-por exercitar um subconjunto diferente dos conceitos acima, mantendo o
-código pequeno o suficiente para ler de uma vez só.
+O projeto está dividido em duas partes. A \textbf{Parte I}
+(Seção~\ref{sec:compose}) cobre só Jetpack Compose puro, com um contador e
+uma lista de tarefas cujo estado vive inteiramente na função
+\texttt{@Composable} — a versão mais simples possível dos conceitos de
+Compose. A \textbf{Parte II} (Seções~\ref{sec:contentprovider} a
+\ref{sec:stateflow-livedata}) adiciona uma terceira tela, \emph{Notas},
+que já não guarda estado só localmente: ela persiste dados em SQLite por
+trás de um \texttt{ContentProvider}, guarda preferências simples em
+\texttt{SharedPreferences}, organiza a lógica em camadas MVVM, usa
+\texttt{Coroutines} para I/O assíncrono e expõe o estado da tela via
+\texttt{StateFlow} (comparado lado a lado com \texttt{LiveData}). Uma
+quarta tela, separada e escrita com Views/XML clássicos, existe só para
+tornar visível o \texttt{Activity}/\texttt{Fragment lifecycle}
+completo, algo que não aparece em um app 100\% Compose de Activity única.
 
 \section{Estrutura do projeto}
 
@@ -116,31 +129,54 @@ jetpack-compose-review/
 |-- build.gradle.kts                  # configuracao raiz (plugins)
 |-- settings.gradle.kts               # declara o modulo :app
 |-- app/
-|   |-- build.gradle.kts              # dependencias do Compose/Material3
+|   |-- build.gradle.kts              # dependencias (Compose, lifecycle,
+|   |                                 #   coroutines, appcompat/fragment)
 |   `-- src/main/
-|       |-- AndroidManifest.xml
+|       |-- AndroidManifest.xml       # registra Activities e o Provider
 |       |-- java/com/pedro/composereview/
-|       |   |-- MainActivity.kt       # Activity + todos os Composables
-|       |   `-- ui/theme/
-|       |       |-- Color.kt
-|       |       |-- Theme.kt
-|       |       `-- Type.kt
-|       `-- res/values/
-|           |-- strings.xml
-|           `-- themes.xml
+|       |   |-- MainActivity.kt       # Activity Compose + telas 1 e 2
+|       |   |-- data/                 # Parte II: ContentProvider
+|       |   |   |-- Note.kt
+|       |   |   |-- NotesContract.kt
+|       |   |   |-- NotesDbHelper.kt      (SQLiteOpenHelper)
+|       |   |   |-- NotesProvider.kt      (ContentProvider)
+|       |   |   `-- NotesRepository.kt    (Coroutines + Flow)
+|       |   |-- prefs/
+|       |   |   `-- UserPreferences.kt    (SharedPreferences)
+|       |   |-- ui/
+|       |   |   |-- notes/
+|       |   |   |   |-- NotesViewModel.kt (MVVM + StateFlow/LiveData)
+|       |   |   |   `-- NotesScreen.kt    (tela 3, Compose)
+|       |   |   `-- theme/
+|       |   |       |-- Color.kt
+|       |   |       |-- Theme.kt
+|       |   |       `-- Type.kt
+|       |   `-- lifecycle/            # Parte II: demo classica
+|       |       |-- LifecycleDemoActivity.kt
+|       |       `-- LifecycleDemoFragment.kt
+|       `-- res/
+|           |-- layout/               # XML só das telas de lifecycle
+|           |   |-- activity_lifecycle_demo.xml
+|           |   `-- fragment_lifecycle_demo.xml
+|           `-- values/
+|               |-- strings.xml
+|               `-- themes.xml
 `-- docs/
     `-- revisao-jetpack-compose.tex   # este documento
 \end{verbatim}
 
-Diferente de um projeto Android tradicional baseado em \texttt{View}s e
-XML de layout, aqui \emph{toda} a interface é descrita em Kotlin dentro de
-\texttt{MainActivity.kt}, usando funções anotadas com \texttt{@Composable}.
-Os arquivos em \texttt{ui/theme/} apenas definem cores, tipografia e o
-\texttt{MaterialTheme} usado pela aplicação — não contêm lógica de tela.
+A regra geral do projeto: tudo que é tela normal do app é Compose puro
+(\texttt{MainActivity.kt} e o pacote \texttt{ui/}); \texttt{res/layout/} e
+XML existem \emph{apenas} na demonstração de lifecycle clássico, isolada
+no pacote \texttt{lifecycle/}, para não misturar os dois estilos na
+mesma tela.
 
-\section{Os seis conceitos, um a um}
+\section{Parte I --- Jetpack Compose}
+\label{sec:compose}
 
-\subsection{\texttt{@Composable}}
+\subsection{Os seis conceitos, um a um}
+
+\subsubsection{\texttt{@Composable}}
 
 \texttt{@Composable} é a anotação que transforma uma função Kotlin comum
 em uma \textbf{unidade de UI} que o compilador do Compose sabe como
@@ -170,7 +206,7 @@ Note que \texttt{SectionTitle} não devolve uma \texttt{View}: ela apenas
 \emph{como} desenhar isso é o runtime do Compose — esse é o cerne da UI
 declarativa (Seção~\ref{sec:declarativa}).
 
-\subsection{Composição e recomposição}
+\subsubsection{Composição e recomposição}
 
 \textbf{Composição} é o processo de executar as funções
 \texttt{@Composable} e montar a árvore de UI resultante (quais elementos
@@ -221,7 +257,7 @@ de novo (recomposição); (4) \texttt{recompositions[0]} é incrementado e o
 novo valor aparece na tela — evidenciando que a recomposição de fato
 ocorreu.
 
-\subsection{\texttt{state}}
+\subsubsection{\texttt{state}}
 \label{sec:state}
 
 Em Compose, \textbf{state} (estado) é qualquer valor que, ao mudar,
@@ -273,7 +309,7 @@ Essa separação torna \texttt{TaskList} e \texttt{TaskRow} fáceis de
 reutilizar, testar e pré-visualizar isoladamente, porque não dependem de
 \emph{onde} o estado mora — apenas do que recebem por parâmetro.
 
-\subsection{\texttt{remember}}
+\subsubsection{\texttt{remember}}
 
 Funções \texttt{@Composable} podem ser executadas várias vezes
 (recompostas). Sem alguma forma de persistir valores entre essas
@@ -300,7 +336,7 @@ Em todos os casos, a lambda passada para \texttt{remember} só é executada
 \textbf{uma vez} (na primeira composição); nas recomposições seguintes,
 \texttt{remember} simplesmente devolve o valor já existente.
 
-\subsection{\texttt{mutableStateOf}}
+\subsubsection{\texttt{mutableStateOf}}
 
 \texttt{mutableStateOf(valorInicial)} cria um objeto
 \texttt{MutableState<T>} observável: sempre que sua propriedade
@@ -329,7 +365,7 @@ coleções é usado: \texttt{mutableStateListOf(...)}, que devolve uma lista
 cujas operações de mutação (\texttt{add}, \texttt{remove}) já disparam
 recomposição sozinhas.
 
-\subsection{UI declarativa}
+\subsubsection{UI declarativa}
 \label{sec:declarativa}
 
 Em UI \textbf{imperativa} (o modelo clássico de \texttt{View}s no
@@ -359,7 +395,7 @@ Não existe, em nenhum lugar do código, uma chamada explícita para
 "atualizar o texto" — o Compose garante isso automaticamente porque
 \texttt{Text} leu \texttt{count} durante a composição.
 
-\section{Fluxo de dados: do toque na tela até a recomposição}
+\subsection{Fluxo de dados: do toque na tela até a recomposição}
 
 O diagrama abaixo resume o ciclo que ocorre a cada toque no botão
 \texttt{"+1"} do contador:
@@ -392,15 +428,437 @@ adicionar ou remover uma tarefa, é \texttt{TodoCard} (e os composables
 que efetivamente leem \texttt{tasks}) que recompõe, não a árvore inteira
 do aplicativo.
 
+\section{Parte II --- arquitetura, dados e ciclo de vida}
+\label{sec:parte2}
+
+A Parte I usou estado 100\% local: quando \texttt{MainActivity} morre
+(app fechado, processo do sistema encerrado por falta de memória), o
+contador e as tarefas somem. A Parte II resolve isso com a tela
+\emph{Notas}, construída em camadas — exatamente o tipo de arquitetura
+usada em apps reais — e introduz os outros cinco tópicos revisados.
+
+\subsection{Content Provider e compartilhamento de dados}
+\label{sec:contentprovider}
+
+\texttt{ContentProvider} é um dos quatro componentes de app do Android
+(junto com Activity, Service e BroadcastReceiver). Sua função é expor
+dados por trás de um contrato de \textbf{URIs}, para que outros
+componentes — ou até outros apps, quando \texttt{exported="true"} — leiam
+e escrevam sem conhecer o mecanismo de armazenamento real (SQLite, um
+arquivo, uma API remota, etc.). É o mesmo princípio usado pelo Android
+para os provedores nativos de Contatos, Calendário e Mídia.
+
+No projeto, \texttt{NotesProvider} expõe a tabela SQLite \texttt{notes}
+(criada por \texttt{NotesDbHelper}) através de duas URIs — a coleção
+inteira e um item específico — resolvidas com um \texttt{UriMatcher}:
+
+\begin{lstlisting}[caption={NotesProvider: query e insert via URI, com notifyChange}, label=lst:contentprovider]
+class NotesProvider : ContentProvider() {
+
+    private lateinit var dbHelper: NotesDbHelper
+
+    override fun onCreate(): Boolean {
+        dbHelper = NotesDbHelper(context!!)
+        return true
+    }
+
+    override fun query(
+        uri: Uri, projection: Array<out String>?, selection: String?,
+        selectionArgs: Array<out String>?, sortOrder: String?
+    ): Cursor {
+        val db = dbHelper.readableDatabase
+        val cursor = when (uriMatcher.match(uri)) {
+            NOTES -> db.query(TABLE_NAME, projection, selection, selectionArgs,
+                null, null, sortOrder ?: "created_at DESC")
+            NOTE_ID -> db.query(TABLE_NAME, projection, "_id = ?",
+                arrayOf(uri.lastPathSegment), null, null, null)
+            else -> throw IllegalArgumentException("URI desconhecida: $uri")
+        }
+        cursor.setNotificationUri(context!!.contentResolver, uri)
+        return cursor
+    }
+
+    override fun insert(uri: Uri, values: ContentValues?): Uri {
+        val db = dbHelper.writableDatabase
+        val id = db.insert(TABLE_NAME, null, values)
+        val itemUri = ContentUris.withAppendedId(NotesContract.CONTENT_URI, id)
+        context!!.contentResolver.notifyChange(itemUri, null)
+        return itemUri
+    }
+
+    // update(), delete() e getType() seguem o mesmo padrao.
+}
+\end{lstlisting}
+
+Dois detalhes merecem destaque:
+
+\begin{itemize}
+    \item \texttt{cursor.setNotificationUri(...)} e
+    \texttt{contentResolver.notifyChange(...)} são o que permite que
+    \emph{qualquer} componente que tenha registrado um
+    \texttt{ContentObserver} naquela URI seja avisado quando os dados
+    mudam — inclusive se a escrita veio de outro processo. É essa
+    notificação que \texttt{NotesRepository} usa para transformar
+    mudanças no banco em um \texttt{Flow} reativo (Seção~\ref{sec:coroutines}).
+    \item \texttt{NotesProvider} está declarado no
+    \texttt{AndroidManifest.xml} com \texttt{exported="false"}: só este
+    app pode acessá-lo. Compartilhar de fato com outros apps seria
+    trocar para \texttt{exported="true"} e, tipicamente, adicionar
+    \texttt{readPermission}/\texttt{writePermission} para controlar quem
+    pode ler e quem pode escrever.
+\end{itemize}
+
+Na prática, o resto do app nunca importa \texttt{NotesDbHelper}
+diretamente — só fala com \texttt{ContentResolver} usando
+\texttt{NotesContract.CONTENT\_URI}, o que deixa a implementação de
+armazenamento livre para mudar sem afetar quem consome os dados.
+
+\subsection{SharedPreferences e suas limitações}
+\label{sec:sharedpreferences}
+
+\texttt{SharedPreferences} guarda pares chave/valor simples em um
+arquivo XML privado do app — ideal para preferências pequenas (um nome de
+usuário, um contador, uma flag de "já mostrou o tutorial"). No projeto,
+\texttt{UserPreferences} envolve esse acesso:
+
+\begin{lstlisting}[caption={UserPreferences: leitura/escrita simples com apply()}, label=lst:sharedprefs]
+class UserPreferences(context: Context) {
+    private val prefs: SharedPreferences =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    fun getUserName(): String = prefs.getString(KEY_USER_NAME, "") ?: ""
+
+    fun setUserName(name: String) {
+        prefs.edit().putString(KEY_USER_NAME, name).apply()
+    }
+
+    fun incrementNotesCreatedTotal() {
+        prefs.edit().putInt(KEY_NOTES_CREATED, getNotesCreatedTotal() + 1).apply()
+    }
+}
+\end{lstlisting}
+
+No app, \texttt{NotesViewModel} usa essa classe para lembrar o nome
+digitado pelo usuário e o total histórico de notas criadas — valores que
+sobrevivem mesmo que o processo do app seja encerrado, ao contrário do
+\texttt{remember} da Parte I.
+
+\texttt{apply()} grava em disco de forma assíncrona (não bloqueia quem
+chamou, mas também não confirma que a escrita já terminou);
+\texttt{commit()} é a alternativa síncrona, que bloqueia a thread
+chamadora até gravar e devolve um \texttt{Boolean} de sucesso — por isso
+\texttt{commit()} nunca deveria ser chamado na thread principal.
+
+\textbf{Limitações} que tornam SharedPreferences inadequado para além de
+configurações simples:
+
+\begin{itemize}
+    \item Chaves são \texttt{String}s soltas — sem verificação do
+    compilador, é fácil digitar errado (\texttt{"user\_name"} vs
+    \texttt{"username"}) sem nenhum aviso.
+    \item Não existe consulta, filtro, relação entre chaves ou schema —
+    é só um dicionário chave/valor, não um banco de dados; dados
+    estruturados ou relacionais pertencem ao SQLite/ContentProvider
+    (Seção~\ref{sec:contentprovider}), não aqui.
+    \item O arquivo XML inteiro é carregado para a memória na primeira
+    leitura; arquivos grandes custam I/O logo na inicialização do app.
+    \item Não é observável de forma nativa por Compose/Flow — só existe
+    um \texttt{OnSharedPreferenceChangeListener} manual baseado em
+    callback, então não serve como fonte de verdade reativa (comparar
+    com \texttt{StateFlow}, Seção~\ref{sec:stateflow-livedata}).
+    \item Sem suporte a migração de schema — mudar o formato de um valor
+    salvo é responsabilidade inteiramente do código do app.
+\end{itemize}
+
+Para os casos em que essas limitações pesam — dados maiores, necessidade
+de observar mudanças de forma reativa, ou tipagem mais forte — o Android
+recomenda hoje o \textbf{Jetpack DataStore} (Preferences ou Proto), que
+expõe os valores como \texttt{Flow} em vez de leitura síncrona.
+
+\subsection{Arquitetura MVVM}
+\label{sec:mvvm}
+
+MVVM (\emph{Model-View-ViewModel}) separa a tela em três papéis:
+
+\begin{itemize}
+    \item \textbf{Model}: os dados e as regras de acesso a eles —
+    aqui, \texttt{Note}, \texttt{NotesRepository} e
+    \texttt{UserPreferences}.
+    \item \textbf{ViewModel}: dona do estado de UI e da lógica de
+    "o que fazer quando o usuário faz X" — aqui,
+    \texttt{NotesViewModel}. Sobrevive a mudanças de configuração
+    (rotação de tela) porque seu ciclo de vida é gerenciado pelo
+    Android Jetpack, não pela Activity/Composable.
+    \item \textbf{View}: só renderiza o estado atual e repassa eventos
+    do usuário para o ViewModel — aqui, o composable
+    \texttt{NotesCard} (Seção~\ref{sec:stateflow-livedata}).
+\end{itemize}
+
+\begin{lstlisting}[caption={NotesViewModel: estado + eventos, sem nenhuma referência a Compose}, label=lst:viewmodel]
+class NotesViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = NotesRepository(application.contentResolver)
+    private val preferences = UserPreferences(application)
+    private val _uiState = MutableStateFlow(NotesUiState())
+    val uiState: StateFlow<NotesUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            repository.observeNotes().collect { notes ->
+                _uiState.update { it.copy(notes = notes, isLoading = false) }
+            }
+        }
+    }
+
+    fun addNote(title: String) {
+        if (title.isBlank()) return
+        viewModelScope.launch {
+            repository.addNote(title.trim())
+            preferences.incrementNotesCreatedTotal()
+        }
+    }
+
+    fun deleteNote(id: Long) {
+        viewModelScope.launch { repository.deleteNote(id) }
+    }
+}
+\end{lstlisting}
+
+A propriedade central de MVVM aqui é a \textbf{direção única de
+dependência}: \texttt{NotesViewModel} não importa nada de
+\texttt{androidx.compose}, e \texttt{NotesCard} não sabe nada sobre
+\texttt{ContentResolver} ou SQLite — ela só lê \texttt{uiState} e chama
+\texttt{addNote}/\texttt{deleteNote}. Isso torna o ViewModel testável
+sem precisar renderizar UI, e a UI substituível (poderia virar uma tela
+com Views/XML amanhã) sem tocar na lógica de negócio.
+
+\subsection{Coroutines}
+\label{sec:coroutines}
+
+Toda operação de I/O no Android (disco, banco, rede) deveria rodar fora
+da \emph{main thread}, sob pena de travar a UI (e, em casos extremos,
+disparar um ANR — \emph{Application Not Responding}). Coroutines
+Kotlin resolvem isso com funções \texttt{suspend} que "pausam" sem
+bloquear a thread, mais um \texttt{CoroutineScope} que controla quando
+esse trabalho começa e é cancelado.
+
+\texttt{NotesRepository} usa duas técnicas de coroutines:
+
+\begin{lstlisting}[caption={withContext para offload de I/O e callbackFlow para observar mudanças}, label=lst:coroutines]
+suspend fun addNote(title: String): Unit = withContext(Dispatchers.IO) {
+    val values = ContentValues().apply {
+        put(NotesContract.Columns.TITLE, title)
+        put(NotesContract.Columns.CREATED_AT, System.currentTimeMillis())
+    }
+    contentResolver.insert(NotesContract.CONTENT_URI, values)
+    Unit
+}
+
+fun observeNotes(): Flow<List<Note>> = callbackFlow {
+    val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) { trySend(queryNotes()) }
+    }
+    contentResolver.registerContentObserver(NotesContract.CONTENT_URI, true, observer)
+    trySend(queryNotes())
+    awaitClose { contentResolver.unregisterContentObserver(observer) }
+}.flowOn(Dispatchers.IO)
+\end{lstlisting}
+
+\begin{itemize}
+    \item \texttt{withContext(Dispatchers.IO)} move o bloco para uma
+    thread pool otimizada para I/O e devolve o resultado quando termina
+    — usado em \texttt{addNote}/\texttt{deleteNote}, que fazem uma
+    escrita pontual.
+    \item \texttt{callbackFlow} faz a ponte entre o mundo de callbacks
+    do Android (\texttt{ContentObserver.onChange}) e o mundo de
+    coroutines (\texttt{Flow}): cada mudança nos dados chama
+    \texttt{trySend(...)}, emitindo uma nova lista para quem estiver
+    coletando o \texttt{Flow}. \texttt{awaitClose} garante que o
+    \texttt{ContentObserver} é removido quando ninguém mais coleta,
+    evitando vazamento.
+\end{itemize}
+
+Quem inicia essas coroutines é sempre o \texttt{ViewModel}, com
+\texttt{viewModelScope.launch \{ ... \}} (Seção~\ref{sec:mvvm}): esse
+escopo é cancelado automaticamente em \texttt{onCleared()}, então uma
+coroutine nunca continua rodando depois que a tela que a originou não
+existe mais.
+
+\subsection{StateFlow / LiveData}
+\label{sec:stateflow-livedata}
+
+Ambos são contêineres \textbf{observáveis} — a UI se inscreve e é
+notificada quando o valor muda — mas com origens e comportamento
+diferentes:
+
+\begin{itemize}
+    \item \textbf{LiveData} é mais antigo (pré-Coroutines/Flow), é
+    \emph{lifecycle-aware} por padrão (só entrega valores para
+    observadores \texttt{STARTED} ou mais) e é observado com
+    \texttt{observe(lifecycleOwner) \{ ... \}} fora do Compose, ou
+    \texttt{observeAsState()} dentro dele.
+    \item \textbf{StateFlow} é construído sobre Coroutines/Flow, sempre
+    tem um valor atual (não existe "ainda não emitiu nada"), suporta os
+    operadores de \texttt{Flow} (\texttt{map}, \texttt{combine},
+    \texttt{debounce}, ...) e é a opção recomendada atualmente para
+    expor estado de um \texttt{ViewModel}.
+\end{itemize}
+
+Para comparar os dois lado a lado, \texttt{NotesViewModel} expõe a
+mesma informação (quantidade de notas) das duas formas — a LiveData é
+derivada do próprio StateFlow com \texttt{asLiveData()}:
+
+\begin{lstlisting}[caption={A mesma informacao exposta como StateFlow e como LiveData}, label=lst:stateflow-livedata]
+val uiState: StateFlow<NotesUiState> = _uiState.asStateFlow()
+
+val noteCountLiveData: LiveData<Int> = uiState
+    .map { it.notes.size }
+    .asLiveData()
+\end{lstlisting}
+
+E consumidas na tela (\texttt{NotesCard}) com o equivalente Compose de
+cada uma:
+
+\begin{lstlisting}[caption={Coletando StateFlow e observando LiveData a partir do Compose}, label=lst:collect-observe]
+val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+val liveNoteCount by viewModel.noteCountLiveData.observeAsState(initial = 0)
+\end{lstlisting}
+
+\texttt{collectAsStateWithLifecycle()} só mantém a coleta ativa enquanto
+a tela está pelo menos \texttt{STARTED}, evitando trabalho desperdiçado
+em background — o mesmo comportamento lifecycle-aware que a LiveData já
+tinha nativamente.
+
+\subsection{Activity/Fragment lifecycle}
+\label{sec:lifecycle}
+
+Uma \texttt{Activity} passa por estados bem definidos —
+\texttt{onCreate} $\to$ \texttt{onStart} $\to$ \texttt{onResume} $\to$
+\texttt{onPause} $\to$ \texttt{onStop} $\to$ \texttt{onDestroy} — que o
+sistema dispara conforme a tela fica visível, ganha foco, perde foco ou
+sai de cena. Um \texttt{Fragment} tem um ciclo ainda mais granular,
+porque sua \emph{view} pode ser destruída e recriada
+(\texttt{onCreateView}/\texttt{onDestroyView}) sem que o Fragment
+inteiro seja destruído, e porque ele precisa se anexar/desanexar de uma
+Activity hospedeira (\texttt{onAttach}/\texttt{onDetach}).
+
+Como \texttt{MainActivity} é uma Activity única 100\% Compose, esse
+ciclo completo de Fragment não apareceria em nenhum outro lugar do
+projeto. Por isso existe \texttt{LifecycleDemoActivity} — uma
+\texttt{AppCompatActivity} clássica, com layout XML, que hospeda
+\texttt{LifecycleDemoFragment} — acessível pelo botão "Abrir demo de
+lifecycle" na tela principal:
+
+\begin{lstlisting}[caption={Fragment: cada callback grava e reimprime o log na tela}, label=lst:lifecycle-fragment]
+class LifecycleDemoFragment : Fragment(R.layout.fragment_lifecycle_demo) {
+    private val entries = mutableListOf<String>()
+
+    override fun onAttach(context: Context) { super.onAttach(context); log("Fragment onAttach") }
+    override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState); log("Fragment onCreate") }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState); log("Fragment onViewCreated")
+    }
+    override fun onStart() { super.onStart(); log("Fragment onStart") }
+    override fun onResume() { super.onResume(); log("Fragment onResume") }
+    override fun onPause() { super.onPause(); log("Fragment onPause") }
+    override fun onStop() { super.onStop(); log("Fragment onStop") }
+    override fun onDestroyView() { log("Fragment onDestroyView"); super.onDestroyView() }
+    override fun onDetach() { super.onDetach(); log("Fragment onDetach") }
+
+    private fun log(message: String) {
+        Log.d("LifecycleDemo", message)
+        entries += message
+        view?.findViewById<TextView>(R.id.text_log)?.text = entries.joinToString("\n")
+    }
+}
+\end{lstlisting}
+
+Rodando a demo, a ordem observada no Logcat (tag \texttt{LifecycleDemo})
+é: \texttt{Activity.onCreate} $\to$ \texttt{Fragment.onAttach} $\to$
+\texttt{Fragment.onCreate} $\to$ \texttt{Fragment.onViewCreated} $\to$
+\texttt{Activity.onStart} $\to$ \texttt{Fragment.onStart} $\to$
+\texttt{Activity.onResume} $\to$ \texttt{Fragment.onResume} — deixando
+claro que o Fragment está aninhado dentro do ciclo de vida da Activity
+que o hospeda, nunca à frente dele.
+
+Mesmo em um app só-Compose, o \texttt{Lifecycle} continua relevante: o
+próprio \texttt{NotesCard} observa eventos de \texttt{ON\_START}/
+\texttt{ON\_STOP} da Activity para fins de log, usando a ponte oficial
+entre Compose e o sistema de Lifecycle clássico:
+
+\begin{lstlisting}[caption={Observando o Lifecycle da Activity a partir de um Composable}, label=lst:lifecycle-compose]
+@Composable
+private fun ObserveLifecycle(tag: String) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_START || event == Lifecycle.Event.ON_STOP) {
+                Log.d(tag, "Lifecycle event: $event")
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+}
+\end{lstlisting}
+
+\texttt{DisposableEffect} garante que o observador seja removido em
+\texttt{onDispose} quando o composable sai da árvore — sem isso, o
+observador vazaria e continuaria recebendo eventos de um Lifecycle cuja
+tela já não existe mais.
+
+\section{Fluxo de dados da tela Notas: do toque em "Add" até a UI atualizada}
+
+O diagrama abaixo conecta todos os tópicos da Parte II em um único
+ciclo — do toque no botão até a lista reaparecer atualizada:
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=0.55cm and 1.6cm,
+    box/.style={draw, rounded corners, minimum width=8.6cm, minimum height=0.9cm, align=center, font=\small},
+    arr/.style={-{Latex[length=2mm]}, thick}
+]
+\node[box] (tap) {UI (Compose): usuário toca em "Add" $\to$ \texttt{viewModel.addNote(texto)}};
+\node[box, below=of tap] (vm) {ViewModel: \texttt{viewModelScope.launch \{ ... \}} (Coroutines)};
+\node[box, below=of vm] (repo) {Repository: \texttt{withContext(Dispatchers.IO)} $\to$ \texttt{contentResolver.insert(...)}};
+\node[box, below=of repo] (provider) {ContentProvider: \texttt{insert()} grava no SQLite e chama \texttt{notifyChange()}};
+\node[box, below=of provider] (observer) {ContentObserver.onChange $\to$ \texttt{callbackFlow} reemite a lista};
+\node[box, below=of observer] (state) {ViewModel: \texttt{\_uiState.update \{ ... \}} (StateFlow)};
+\node[box, below=of state] (ui) {UI: \texttt{collectAsStateWithLifecycle()} recompõe \texttt{NotesCard} com a nova lista};
+
+\draw[arr] (tap) -- (vm);
+\draw[arr] (vm) -- (repo);
+\draw[arr] (repo) -- (provider);
+\draw[arr] (provider) -- (observer);
+\draw[arr] (observer) -- (state);
+\draw[arr] (state) -- (ui);
+\end{tikzpicture}
+\end{center}
+
+Note que a única parte deste ciclo que \emph{recompõe} algo é o último
+passo — todo o caminho até ali (ViewModel, Repository, Provider,
+SQLite) é Kotlin/Android comum, sem nenhuma dependência de Compose, o
+que é exatamente a separação de responsabilidades que o MVVM propõe.
+
 \section{Conclusão}
 
-A aplicação \texttt{ComposeReview} concentra, em menos de 200 linhas de
-Kotlin, os seis conceitos revisados: funções \texttt{@Composable}
+O projeto \texttt{ComposeReview} cobre, em pouco código, sete tópicos
+centrais de um app Android moderno. Na Parte I, um contador e uma lista
+de tarefas revisam Jetpack Compose "puro": funções \texttt{@Composable}
 formam a árvore de UI; \texttt{state} (via \texttt{mutableStateOf} e
 \texttt{mutableStateListOf}) guarda os dados que podem mudar;
 \texttt{remember} preserva esse estado entre execuções; e a
-composição/recomposição é o mecanismo que mantém a tela sincronizada com
-o estado, seguindo o modelo declarativo \texttt{UI = f(state)} — sem
-nenhuma chamada imperativa de atualização de tela.
+composição/recomposição mantém a tela sincronizada com o estado, seguindo
+o modelo declarativo \texttt{UI = f(state)}. Na Parte II, a tela Notas
+mostra como esses mesmos conceitos de Compose se encaixam em uma
+arquitetura maior: um \texttt{ContentProvider} compartilha dados
+persistidos em SQLite por trás de um contrato de URIs;
+\texttt{SharedPreferences} guarda preferências simples (com limitações
+claras para qualquer coisa maior que isso); \texttt{Coroutines} tiram
+o I/O da thread principal e transformam callbacks em \texttt{Flow};
+o \texttt{ViewModel} organiza tudo em MVVM, expondo estado via
+\texttt{StateFlow} (comparado a \texttt{LiveData}); e uma tela separada
+com Activity/Fragment clássicos deixa visível o ciclo de vida que, em
+um app só-Compose de Activity única, ficaria escondido.
 
 \end{document}

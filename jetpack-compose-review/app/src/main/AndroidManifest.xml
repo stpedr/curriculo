@@ -16,6 +16,22 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".lifecycle.LifecycleDemoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ComposeReview.Lifecycle" />
+
+        <!--
+             exported="false": só este próprio app pode acessar o
+             provider. Para de fato compartilhar dados com OUTROS apps,
+             bastaria exported="true" mais permissões (readPermission /
+             writePermission) definidas aqui.
+        -->
+        <provider
+            android:name=".data.NotesProvider"
+            android:authorities="com.pedro.composereview.provider"
+            android:exported="false" />
+
     </application>
 
 </manifest>

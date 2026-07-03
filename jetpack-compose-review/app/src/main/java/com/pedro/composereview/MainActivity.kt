@@ -1,6 +1,8 @@
 package com.pedro.composereview
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +20,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -32,17 +35,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.pedro.composereview.lifecycle.LifecycleDemoActivity
+import com.pedro.composereview.ui.notes.NotesCard
 import com.pedro.composereview.ui.theme.ComposeReviewTheme
 
+private const val TAG = "MainActivity"
+
 /**
- * Activity: unico ponto de entrada Android. Toda a UI abaixo dela e
- * construida de forma declarativa com Jetpack Compose (nada de XML/Views).
+ * Activity: único ponto de entrada Android. Toda a UI abaixo dela é
+ * construída de forma declarativa com Jetpack Compose (nada de XML/Views
+ * — a exceção fica isolada em [LifecycleDemoActivity], criada só para
+ * comparar com o ciclo de vida clássico de Activity/Fragment).
+ *
+ * Os overrides abaixo tornam visível (via Logcat, tag "MainActivity") o
+ * ciclo de vida padrão da Activity: onCreate roda uma única vez; onStart
+ * e onStop marcam visibilidade; onResume/onPause marcam o foco de
+ * interação; onDestroy fecha o ciclo.
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate")
         setContent {
             ComposeReviewTheme {
                 Surface(modifier = Modifier) {
@@ -51,11 +67,38 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy")
+    }
 }
 
 /** Composable raiz: apenas descreve a UI, sem logica de estado propria. */
 @Composable
 fun ReviewApp() {
+    val context = LocalContext.current
+
     Scaffold(
         topBar = { TopAppBar(title = { Text("Jetpack Compose Review") }) }
     ) { padding ->
@@ -73,6 +116,23 @@ fun ReviewApp() {
 
             SectionTitle("2. Lista de tarefas (state hoisting)")
             TodoCard()
+
+            Divider()
+
+            SectionTitle("3. Notas (MVVM + ContentProvider + Coroutines + StateFlow/LiveData)")
+            NotesCard()
+
+            Divider()
+
+            SectionTitle("4. Activity/Fragment lifecycle")
+            Text(
+                "Abre uma tela separada (Views + XML) que loga cada callback " +
+                    "de ciclo de vida de Activity e Fragment no Logcat (tag \"LifecycleDemo\").",
+                style = MaterialTheme.typography.bodySmall
+            )
+            OutlinedButton(onClick = {
+                context.startActivity(Intent(context, LifecycleDemoActivity::class.java))
+            }) { Text("Abrir demo de lifecycle") }
         }
     }
 }
