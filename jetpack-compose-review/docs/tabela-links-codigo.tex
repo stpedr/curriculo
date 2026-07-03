@@ -1,0 +1,118 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{geometry}
+\geometry{margin=2cm,headheight=14pt}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{fancyhdr}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!55!black,
+    urlcolor=blue!55!black,
+    pdftitle={Links do codigo por topico - ComposeReview},
+    pdfauthor={Pedro Oliveira}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Links do código por tópico --- ComposeReview}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\newcommand{\repobase}{https://github.com/stpedr/curriculo/blob/claude/jetpack-compose-review-r09a59/jetpack-compose-review/}
+
+\title{\textbf{Links do código por tópico} \\ \large Projeto \texttt{ComposeReview} --- tópicos fora de Jetpack Compose}
+\author{Pedro Oliveira}
+\date{\today}
+
+\begin{document}
+\shorthandoff{"}
+
+\maketitle
+
+\noindent Tabela com acesso direto, por tópico, ao código correspondente
+no repositório \texttt{stpedr/curriculo}, branch
+\texttt{claude/jetpack-compose-review-r09a59}. Os links levam à linha
+exata onde a classe/função relevante começa, quando aplicável.
+
+\vspace{1em}
+
+\section*{Content Provider e compartilhamento de dados}
+\begin{longtable}{L{5.4cm}L{8.5cm}}
+\textbf{Arquivo} & \textbf{O que tem lá} \\ \hline \endhead
+\href{\repobase app/src/main/java/com/pedro/composereview/data/NotesProvider.kt\#L22}{\url{data/NotesProvider.kt}} &
+O \texttt{ContentProvider} em si: \texttt{query}/\texttt{insert}/\texttt{update}/\texttt{delete}/\texttt{getType} via \texttt{UriMatcher} \\
+\href{\repobase app/src/main/java/com/pedro/composereview/data/NotesContract.kt}{\url{data/NotesContract.kt}} &
+Contrato público: authority, \texttt{CONTENT\_URI}, nomes de coluna \\
+\href{\repobase app/src/main/java/com/pedro/composereview/data/NotesDbHelper.kt}{\url{data/NotesDbHelper.kt}} &
+\texttt{SQLiteOpenHelper} por trás do provider \\
+\href{\repobase app/src/main/AndroidManifest.xml}{\url{AndroidManifest.xml}} &
+Registro do \texttt{<provider>} \\
+\end{longtable}
+
+\section*{SharedPreferences e suas limitações}
+\begin{longtable}{L{5.4cm}L{8.5cm}}
+\textbf{Arquivo} & \textbf{O que tem lá} \\ \hline \endhead
+\href{\repobase app/src/main/java/com/pedro/composereview/prefs/UserPreferences.kt\#L29}{\url{prefs/UserPreferences.kt}} &
+Wrapper de \texttt{SharedPreferences} + comentário com as limitações \\
+\end{longtable}
+
+\section*{Activity/Fragment lifecycle}
+\begin{longtable}{L{5.4cm}L{8.5cm}}
+\textbf{Arquivo} & \textbf{O que tem lá} \\ \hline \endhead
+\href{\repobase app/src/main/java/com/pedro/composereview/lifecycle/LifecycleDemoActivity.kt\#L20}{\url{lifecycle/LifecycleDemoActivity.kt}} &
+\texttt{AppCompatActivity} clássica logando todo o ciclo de vida \\
+\href{\repobase app/src/main/java/com/pedro/composereview/lifecycle/LifecycleDemoFragment.kt\#L26}{\url{lifecycle/LifecycleDemoFragment.kt}} &
+\texttt{Fragment} com \texttt{onAttach} → \texttt{onDetach} completos \\
+\href{\repobase app/src/main/res/layout/activity_lifecycle_demo.xml}{\url{res/layout/activity\_lifecycle\_demo.xml}} &
+Layout XML clássico da Activity \\
+\href{\repobase app/src/main/res/layout/fragment_lifecycle_demo.xml}{\url{res/layout/fragment\_lifecycle\_demo.xml}} &
+Layout XML clássico do Fragment \\
+\href{\repobase app/src/main/java/com/pedro/composereview/MainActivity.kt\#L59}{\url{MainActivity.kt}} &
+Overrides de lifecycle da Activity principal \\
+\end{longtable}
+
+\section*{Coroutines}
+\begin{longtable}{L{5.4cm}L{8.5cm}}
+\textbf{Arquivo} & \textbf{O que tem lá} \\ \hline \endhead
+\href{\repobase app/src/main/java/com/pedro/composereview/data/NotesRepository.kt\#L32}{\url{data/NotesRepository.kt}} &
+\texttt{callbackFlow} (ContentObserver → Flow) e \texttt{withContext(Dispatchers.IO)} \\
+\href{\repobase app/src/main/java/com/pedro/composereview/ui/notes/NotesViewModel.kt\#L60}{\url{ui/notes/NotesViewModel.kt}} &
+\texttt{viewModelScope.launch \{ ... \}} \\
+\end{longtable}
+
+\section*{MVVM}
+\begin{longtable}{L{5.4cm}L{8.5cm}}
+\textbf{Arquivo} & \textbf{Camada} \\ \hline \endhead
+\href{\repobase app/src/main/java/com/pedro/composereview/ui/notes/NotesViewModel.kt\#L33}{\url{ui/notes/NotesViewModel.kt}} &
+ViewModel \\
+\href{\repobase app/src/main/java/com/pedro/composereview/ui/notes/NotesScreen.kt\#L44}{\url{ui/notes/NotesScreen.kt}} &
+View (Compose) \\
+\href{\repobase app/src/main/java/com/pedro/composereview/data/NotesRepository.kt\#L23}{\url{data/NotesRepository.kt}} &
+Model \\
+\end{longtable}
+
+\section*{StateFlow / LiveData}
+\begin{longtable}{L{5.4cm}L{8.5cm}}
+\textbf{Arquivo} & \textbf{O que tem lá} \\ \hline \endhead
+\href{\repobase app/src/main/java/com/pedro/composereview/ui/notes/NotesViewModel.kt\#L46}{\url{ui/notes/NotesViewModel.kt}} &
+\texttt{uiState: StateFlow<...>} (linha 46) e \texttt{noteCountLiveData: LiveData<Int>} (linha 55) \\
+\href{\repobase app/src/main/java/com/pedro/composereview/ui/notes/NotesScreen.kt\#L49}{\url{ui/notes/NotesScreen.kt}} &
+\texttt{collectAsStateWithLifecycle()} (linha 49) e \texttt{observeAsState()} (linha 53) \\
+\end{longtable}
+
+\vspace{1em}
+\noindent\textit{Observação: os links apontam para o branch
+\texttt{claude/jetpack-compose-review-r09a59}. Caso esse branch seja
+mesclado ou removido, os links deixam de funcionar — nesse caso, aplique
+o mesmo caminho de arquivo sobre a branch \texttt{main} do repositório.}
+
+\end{document}
