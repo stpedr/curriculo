@@ -14,6 +14,11 @@ cinemático linearizante por ponto de controle virtual na malha externa.
 | `vehicle_dynamics.pyc` | Biblioteca caixa-preta pré-compilada da dinâmica do veículo (fornecida; **requer CPython 3.13**) |
 | `requirements.txt` | Dependências Python do laboratório |
 | `Segundo_Projeto_de_Sistemas_de_Controle.pdf` | Enunciado com requisitos, modelagem e especificações |
+| `Relatorio_Validacao_Controle.pdf` | Relatório de validação gerado por script: resumo executivo, justificativas de projeto, checklist auditado (10/10 requisitos), análise A×B de rejeição de distúrbios e guia de validação no Jupyter |
+| `audit_ab.py` | Roda as simulações comparativas Cenário A × Cenário B e gera figuras/séries em `report_figs/` |
+| `generate_report.py` | Gera o `Relatorio_Validacao_Controle.pdf` (fpdf2) a partir dos artefatos de `audit_ab.py` |
+| `sweep_d.py` | Módulo com o projeto dos ganhos (alocação de polos) reutilizado pelos scripts de auditoria |
+| `report_figs/` | Figuras e séries temporais A×B usadas no relatório |
 
 ## Como executar
 
