@@ -19,6 +19,24 @@ cinemático linearizante por ponto de controle virtual na malha externa.
 | `generate_report.py` | Gera o `Relatorio_Validacao_Controle.pdf` (fpdf2) a partir dos artefatos de `audit_ab.py` |
 | `sweep_d.py` | Módulo com o projeto dos ganhos (alocação de polos) reutilizado pelos scripts de auditoria |
 | `report_figs/` | Figuras e séries temporais A×B usadas no relatório |
+| `interactive_sim.py` | Núcleo numérico do dashboard: projeto de ganhos por alocação de polos, fábrica das 5 funções de estudante (assinaturas originais), simulação, métricas e varredura `d→0` |
+| `dashboard.py` | Dashboard Streamlit de sintonia interativa (só renderização) |
+| `requirements-dashboard.txt` | Dependências do dashboard (streamlit + as do laboratório) |
+
+## Dashboard interativo de sintonia
+
+```bash
+uv pip install --python .venv/bin/python -r requirements-dashboard.txt
+.venv/bin/python -m streamlit run dashboard.py
+```
+
+Permite ajustar ao vivo os polos da malha interna e do ESO, `Kp`/`Ki` da malha externa,
+a distância sagital `d` (0,01–0,20 m) e ligar/desligar o anti-windup e o governador de
+comando. Exibe: espectro de polos do sistema conjunto (teorema da separação), erro
+cartesiano em escala log, estados reais × estimados do ESO com `τ̂_d` reconstruído,
+tensões com os limites de ±12 V demarcados e a tabela ISE/ITSE/ISC. Botões de um clique
+carregam os Cenários A/B/C e a varredura do limiar `d→0` (Cenário D), com alertas visuais
+de ciclo-limite, esgotamento de saturação e dominância do ESO abaixo de 5×.
 
 ## Como executar
 
