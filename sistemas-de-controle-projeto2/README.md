@@ -37,6 +37,8 @@ shim `np.trapz = np.trapezoid`, pois a biblioteca pré-compilada usa a API antig
 | ESO (3ª ordem, por eixo) | Inovação pela corrente de armadura (única medida) | Polos `{−300, −330, −360}` | Dominância 5× sobre a malha de controle; erro de estimação assintótico nulo |
 | Externa (cinemática) | Desacoplamento pelo ponto P + feedforward da referência + PI por eixo cartesiano | `d = 0,10 m`, `kp = 12`, `ki = 2`, governador de roda 60 rad/s | Ts(2%) ≈ 0,34 s ≤ 0,40 s; sobressinal geométrico nulo na região linear |
 
-Limiar de estabilidade da distância sagital mapeado experimentalmente:
-`d = 0,05 m` instabiliza (ciclo-limite com ~80% de saturação na trajetória senoidal);
-`d ≥ 0,08 m` estável — valor de projeto `d = 0,10 m` com margem de 25%.
+Limiar de estabilidade da distância sagital mapeado experimentalmente (trajetória
+senoidal, caso discriminante): `d ≤ 0,03 m` entra em ciclo-limite (~79% de saturação,
+erro RMS ≈ 0,47 m); `d ≥ 0,05 m` estável. O governador de comando com congelamento dos
+integradores cinemáticos amplia a faixa estável (sem ele o limiar sobe para ≈ 0,08 m).
+Valor de projeto: `d = 0,10 m`, com margem de 2× sobre o limiar.
