@@ -22,6 +22,8 @@ cinemático linearizante por ponto de controle virtual na malha externa.
 | `interactive_sim.py` | Núcleo numérico do dashboard: projeto de ganhos por alocação de polos, fábrica das 5 funções de estudante (assinaturas originais), simulação, métricas e varredura `d→0` |
 | `dashboard.py` | Dashboard Streamlit de sintonia interativa (só renderização) |
 | `requirements-dashboard.txt` | Dependências do dashboard (streamlit + as do laboratório) |
+| `generate_diagrams.py` → `Diagramas_Projeto_Controle.pdf` | Diagramas de blocos das três malhas e fluxogramas do simulador e da metodologia |
+| `generate_theory.py` → `Leis_de_Controle_e_Observacao.pdf` | Documento didático que deriva as leis do zero (motor CC → feedforward `R/Kt`, teorema da separação, anti-windup, sintonia `kp`/`ki`) |
 
 ## Dashboard interativo de sintonia
 
