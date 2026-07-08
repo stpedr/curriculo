@@ -24,6 +24,7 @@ cinemático linearizante por ponto de controle virtual na malha externa.
 | `requirements-dashboard.txt` | Dependências do dashboard (streamlit + as do laboratório) |
 | `generate_diagrams.py` → `Diagramas_Projeto_Controle.pdf` | Diagramas de blocos das três malhas e fluxogramas do simulador e da metodologia |
 | `generate_theory.py` → `Leis_de_Controle_e_Observacao.pdf` | Documento didático que deriva as leis do zero (motor CC → feedforward `R/Kt`, teorema da separação, anti-windup, sintonia `kp`/`ki`) |
+| `generate_presentation.py` → `Roteiro_Apresentacao.pdf` | Roteiro de defesa oral: respostas às perguntas do professor (metodologia, o que controlam/observam, onde/por que o distúrbio é rejeitado, efeito do `d`) + diagramas do sistema completo, da planta expandida e da rejeição de distúrbio |
 
 ## Dashboard interativo de sintonia
 
